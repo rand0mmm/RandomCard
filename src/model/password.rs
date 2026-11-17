@@ -1,4 +1,4 @@
-//! HyperCard's stack password scheme, used for RandomCard's own stack
+//! The classic app's stack password scheme, used for RandomCard's own stack
 //! protection too, so imported passwords keep working.
 //!
 //! Ported from StackBlockDecrypter.swift in Pierre Lorenzi's HyperCardPreview
@@ -8,7 +8,7 @@
 //! This only deters casual changes: the hash is weak, and stack files can be
 //! edited directly.
 
-/// Old Mac OS's Random function, which HyperCard used for hashing.
+/// Old the classic OS's Random function, which the classic app used for hashing.
 pub fn hash_number(x: u32) -> u32 {
     let mut r = (x as u64) * 0x41a7;
     r += r >> 31;
@@ -34,7 +34,7 @@ fn normalize(password: &str) -> Vec<u8> {
         .collect()
 }
 
-/// Hash a password's bytes the way HyperCard did.
+/// Hash a password's bytes the way the classic app did.
 pub fn hash_bytes(password: &[u8]) -> u32 {
     let first = password.first().copied().unwrap_or(0) as u32;
     let mut s = first + password.len() as u32;
@@ -74,7 +74,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn hypercard_password_hash() {
+    fn classic_password_hash() {
         // From HyperCardPreview's TestPassword stack.
         assert_eq!(stored_hash("AA éé 1234 ÀÂä"), 0xCA92_2FEB);
         assert!(check("aa ee 1234 aaa", 0xCA92_2FEB));

@@ -1,6 +1,6 @@
 # Stacks that work fully
 
-Stacks from Apple's Developer CDs that open in RandomCard and survive a click on
+Stacks from the vendor's Developer CDs that open in RandomCard and survive a click on
 every scripted button on every card without a single script error. The more
 stacks on this list, the better RandomCard is doing; see BUGHUNT.md for what
 keeps the others off it.
@@ -11,8 +11,8 @@ in git), so the links work once that's in place. "Waited out" means a click ran
 into the two-second limit, usually an animation or a loop waiting for a key
 that a headless run can't press; worth a look by hand.
 
-HyperCard 2.4.1's own stacks, from its installation disk, are tested the same
-way and listed in [HYPERCARD_241_STACKS.md](HYPERCARD_241_STACKS.md).
+Classic 2.4.1's own stacks, from its installation disk, are tested the same
+way and listed in [CLASSIC_241_STACKS.md](CLASSIC_241_STACKS.md).
 
 **Marks:**
 

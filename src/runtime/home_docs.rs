@@ -1,8 +1,8 @@
-//! HyperCard 1.2's Home and its Documents stack: `getHomeInfo`, which fills
+//! Classic 1.2's Home and its Documents stack: `getHomeInfo`, which fills
 //! the globals Home's cards set (the user's name and the search paths),
 //! `GetDocs`, which gives the Documents stack a card for each file in a
 //! folder, and `GetCreator`, which names the program for a creator code.
-//! HyperCard did the first in Home's script and the other two as XCMDs in
+//! The classic app did the first in Home's script and the other two as external commands in
 //! the Documents stack.
 
 use std::path::{Path, PathBuf};
@@ -42,7 +42,7 @@ impl Interp {
 
     /// GetDocs folder: a card for each file in the folder that the stack
     /// has no card for yet, on the background with the Documents fields.
-    /// ":" is HyperCard's own folder, which for RandomCard is Home's.
+    /// ":" is the classic app's own folder, which for RandomCard is Home's.
     pub(super) fn get_docs(&mut self, folder: &str) -> R<()> {
         let folder = folder.trim();
         let dir: PathBuf = if folder.is_empty() || folder == ":" {
@@ -118,7 +118,7 @@ impl Interp {
 }
 
 /// A file's Mac type and creator, as far as today's files show them: a
-/// HyperCard stack is STAK by WILD, a program APPL, anything else unknown.
+/// classic stack is STAK by WILD, a program APPL, anything else unknown.
 fn mac_kind(path: &Path, meta: &std::fs::Metadata) -> (&'static str, &'static str) {
     let mut head = [0u8; 8];
     let stack = path.extension().is_some_and(|e| e == "rcstack")
@@ -141,12 +141,12 @@ fn mac_kind(path: &Path, meta: &std::fs::Metadata) -> (&'static str, &'static st
     ("????", "????")
 }
 
-/// GetCreator(code): the program a creator code belongs to. HyperCard is
+/// GetCreator(code): the program a creator code belongs to. The classic app is
 /// WILD; for the rest, today's files open in the program the system picks,
 /// which `open <document> with <program>` uses whatever it's called.
 pub fn creator_name(code: &str) -> String {
     match code.trim() {
-        "WILD" => "HyperCard".into(),
+        "WILD" => "HyperCard".into(), // legacy-compat: what GetCreator answered for creator WILD
         "" => String::new(),
         _ => "Default Program".into(),
     }

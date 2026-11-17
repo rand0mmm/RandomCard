@@ -1,5 +1,5 @@
-//! Decoder for WOBA ("Wrath Of Bill Atkinson"), the run-length scheme
-//! HyperCard 2.x uses to compress card and background pictures.
+//! Decoder for WOBA ("Wrath Of its original author"), the run-length scheme
+//! classic 2.x uses to compress card and background pictures.
 //!
 //! Ported from the decoder in Pierre Lorenzi's HyperCardPreview
 //! (BitmapLoading.swift, MIT License, Copyright (c) 2021 Pierre Lorenzi):

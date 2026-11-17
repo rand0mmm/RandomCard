@@ -16,7 +16,7 @@ use super::{App, render, windows};
 pub const FAT_ZOOM: f32 = 8.0;
 
 /// FatBits: the paint shown magnified for pixel-by-pixel work, as in
-/// HyperCard. `left` and `top` are the card pixel at the view's top left.
+/// the classic app. `left` and `top` are the card pixel at the view's top left.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct FatBits {
     pub left: f32,
@@ -610,7 +610,7 @@ impl App {
             self.choose_tool(t);
         }
         // Double-clicking a tool opens its options, and again closes them.
-        // The pencil's turns on FatBits, as in HyperCard.
+        // The pencil's turns on FatBits, as in the classic app.
         if resp.double_clicked() {
             if has_options {
                 self.tool_options = if self.tool_options == Some(t) { None } else { Some(t) };
@@ -861,7 +861,7 @@ impl App {
             // Closing or leaving the pattern swatch drops an edit.
             self.pattern_edit = None;
         }
-        // As HyperCard's double-click on a pattern: edit it.
+        // As the classic app's double-click on a pattern: edit it.
         if which == Swatch::Pattern && resp.double_clicked() {
             let n = self.world().pattern;
             self.edit_pattern(n);
@@ -941,7 +941,7 @@ impl App {
         self.open_swatch = Some(Swatch::Pattern);
     }
 
-    /// HyperCard's pattern editor: click a square to turn it on or off
+    /// The classic app's pattern editor: click a square to turn it on or off
     /// (dragging sets the rest the same way), or click the card to take the
     /// pattern there. OK keeps it with the stack; Cancel leaves it as it was.
     fn pattern_editor(&mut self, ui: &mut egui::Ui) -> bool {
@@ -1191,7 +1191,7 @@ impl App {
     }
 
     /// Power Keys: with a paint tool, single keys choose paint commands,
-    /// as in HyperCard, when the message box is hidden. Option and a digit
+    /// as in the classic app, when the message box is hidden. Option and a digit
     /// sets the space Draw Multiple leaves, power keys or not.
     pub(super) fn power_keys(&mut self, ctx: &egui::Context) {
         let digits = [Key::Num1, Key::Num2, Key::Num3, Key::Num4, Key::Num5, Key::Num6, Key::Num7, Key::Num8, Key::Num9];
@@ -1385,7 +1385,7 @@ impl App {
         }
         let to_card = |q: Pos2| to_card(fat, origin, q);
         let p = resp.interact_pointer_pos().or(resp.hover_pos()).map(to_card);
-        // Command-click with the pencil magnifies there, as in HyperCard.
+        // Command-click with the pencil magnifies there, as in the classic app.
         if tool == Tool::Pencil
             && fat.is_none()
             && resp.clicked()
@@ -1493,7 +1493,7 @@ impl App {
     }
 
     /// The select and lasso tools: drag out a selection, or drag inside one
-    /// to move it. As in HyperCard: Command-drag a selection's edge or
+    /// to move it. As in the classic app: Command-drag a selection's edge or
     /// corner to stretch it (with Shift, in proportion); Command-drag with
     /// Select for a rectangle tight around what's painted, Option-drag for
     /// just what's painted; the lasso hugs what's painted unless
@@ -1624,7 +1624,7 @@ impl App {
 
     /// Options' Rotate, Slant, Distort and Perspective: handles on a
     /// rectangular selection's corners (a lasso's doesn't work, as in
-    /// HyperCard). Choosing another while one is on switches to it.
+    /// the classic app). Choosing another while one is on switches to it.
     pub(super) fn start_reshape(&mut self, mode: paint::Reshape) {
         if let Some(Marquee::Reshaping { mode: m, .. }) = &mut self.marquee {
             *m = mode;
@@ -1699,7 +1699,7 @@ impl App {
     }
 
     /// Lift a selection to move it. A floating one puts back what was
-    /// under it; otherwise it leaves its place clear, as in HyperCard.
+    /// under it; otherwise it leaves its place clear, as in the classic app.
     pub(super) fn lift_selection(&mut self, region: &Region) -> Picture {
         match self.floating.take() {
             Some(f) => {
@@ -1922,7 +1922,7 @@ impl App {
             Some(Marquee::Selected { region }) => Some(region.clone()),
             _ => None,
         };
-        // With nothing selected, what was just painted, as in HyperCard;
+        // With nothing selected, what was just painted, as in the classic app;
         // failing that (a script's doMenu), the whole picture, as old
         // stacks expect.
         let new_element = selection.clone().or_else(|| self.world().new_element());
@@ -2044,7 +2044,7 @@ impl App {
 
     /// FatBits: the paint magnified, with a line between pixels, and the
     /// same part at actual size in the corner. Buttons and fields aren't
-    /// shown, as in HyperCard.
+    /// shown, as in the classic app.
     pub(super) fn draw_fat_bits(&self, painter: &egui::Painter, scene: &render::Scene, origin: Pos2, size: Vec2) {
         let Some(f) = self.fat else { return };
         let (left, top) = (f.left.floor(), f.top.floor());
@@ -2080,7 +2080,7 @@ impl App {
         draw(inset);
     }
 
-    /// The pointer over the card is the tool, as in HyperCard: the brush
+    /// The pointer over the card is the tool, as in the classic app: the brush
     /// as its shape at its real size, the eraser's square and the spray's
     /// circle, and the pencil and bucket with their tips where paint
     /// lands. Lines, shapes and selecting get a crosshair, and text an

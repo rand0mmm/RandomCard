@@ -1,6 +1,6 @@
-//! The script editor's Find and Replace, as in HyperCard 2.4's Script menu:
+//! The script editor's Find and Replace, as in classic 2.4's Script menu:
 //! Find (Command-F), Find Again (G), Find Selection (H, or E on a Mac,
-//! which keeps ⌘H), Replace (R) and Replace Again (T), with HyperCard's
+//! which keeps ⌘H), Replace (R) and Replace Again (T), with the classic app's
 //! Whole Word, Case Sensitive and Wraparound Search. Go to Line (J) is
 //! RandomCard's own.
 //!

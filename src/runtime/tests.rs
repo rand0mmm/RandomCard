@@ -188,7 +188,7 @@ fn handlers_and_message_path() {
 fn objects_and_properties() {
     let mut i = interp_with(stack());
     assert_eq!(run(&mut i, "put the number of cards"), "3");
-    assert_eq!(run(&mut i, "put field \"Name\""), "Apple");
+    assert_eq!(run(&mut i, "put field \"Name\""), "Apple"); // legacy-terms:ignore: fruit in the test stack, not the company
     assert_eq!(run(&mut i, "put bg field 1 of card 2"), "banana");
     assert_eq!(run(&mut i, "put the name of button 1"), "card button \"Go\"");
     assert_eq!(run(&mut i, "put the short name of card 3"), "Three");
@@ -244,7 +244,7 @@ fn find_and_mark() {
 
 #[test]
 fn sorting_past_a_card_without_the_field() {
-    // Apple's "Sort Cards by Name" button: an index card on its own
+    // The vendor's "Sort Cards by Name" button: an index card on its own
     // background has no field "Name", and sorts as if it were empty.
     let mut s = stack();
     let mut index_bg = s.backgrounds[0].clone();
@@ -682,7 +682,7 @@ fn demo_stack_runs() {
     assert_eq!(run(&mut i, "put field \"Last Key\" of card \"Keys\""), "arrowKey left");
     run(&mut i, "send \"functionKey 5\" to card \"Keys\"");
     assert_eq!(run(&mut i, "put field \"Last Key\" of card \"Keys\""), "functionKey 5");
-    // The icon buttons change their icons by name, to HyperCard's own.
+    // The icon buttons change their icons by name, to the classic app's own.
     run(&mut i, "go to card \"Icons\"");
     assert_eq!(click(&mut i, "Icons", "Roll Me"), None);
     let die = run(&mut i, "put the icon of card button \"Roll Me\"").parse::<i32>().unwrap();
@@ -710,8 +710,8 @@ fn demo_stack_runs() {
     assert_eq!(run(&mut i, "put field \"Answer\" of card \"Debugging\""), "1 + 4 + 9 + 16 + 25 = 55");
     assert_eq!(click(&mut i, "Debugging", "Message Watcher"), None);
     run(&mut i, "go to card \"Print & Find\"");
-    assert_eq!(click(&mut i, "Print & Find", "Find Bill"), None);
-    assert_eq!(current(&i), "Bill Atkinson");
+    assert_eq!(click(&mut i, "Print & Find", "Find Claude"), None);
+    assert_eq!(current(&i), "Claude Shannon");
     // Address book on its own background.
     assert_eq!(click(&mut i, "Contents", "Address Book"), None);
     assert_eq!(current(&i), "Grace Hopper");
@@ -721,8 +721,8 @@ fn demo_stack_runs() {
     assert_eq!(click(&mut i, "Grace Hopper", "Sort"), None);
     assert_eq!(current(&i), "Ada Lovelace");
     assert_eq!(click(&mut i, "Ada Lovelace", "▶"), None);
-    assert_eq!(current(&i), "Bill Atkinson");
-    assert_eq!(click(&mut i, "Bill Atkinson", "▶"), None);
+    assert_eq!(current(&i), "Claude Shannon");
+    assert_eq!(click(&mut i, "Claude Shannon", "▶"), None);
     assert_eq!(current(&i), "Grace Hopper");
     i.canned_answers.push(DialogReply::Text(Some("compiler".into())));
     assert_eq!(click(&mut i, "Grace Hopper", "Find…"), None);
@@ -745,7 +745,7 @@ fn icons_by_id_or_name() {
     assert_eq!(run(&mut i, "set the icon of button 1 to \"star\"\nput the icon of button 1"), "128");
     assert_eq!(run(&mut i, "set the icon of button 1 to 0\nput the icon of button 1"), "0");
     assert!(run(&mut i, "set the icon of button 1 to \"Nope\"").starts_with("ERROR: No such icon"));
-    // HyperCard's own icons, by name or id, join the stack's.
+    // The classic app's own icons, by name or id, join the stack's.
     assert_eq!(run(&mut i, "set the icon of button 1 to \"black return arrow\"\nput the icon of button 1"), "7417");
     assert_eq!(lock(&i.world).stack.icons.get(&7417).map(|i| i.name.as_str()), Some("Black Return Arrow"));
     assert_eq!(run(&mut i, "set the icon of button 1 to 1012\nput the icon of button 1"), "1012");
@@ -755,8 +755,8 @@ fn icons_by_id_or_name() {
 }
 
 #[test]
-fn hypercard_icons_are_built_in() {
-    let icons = crate::import::hypercard_icons();
+fn builtin_icons_are_built_in() {
+    let icons = crate::import::builtin_icons();
     assert_eq!(icons.len(), 216);
     let arrow = &icons[&7417];
     assert_eq!(arrow.name, "Black Return Arrow");
@@ -774,7 +774,7 @@ fn playing_sounds() {
     assert_eq!(run(&mut i, "put the sound"), "done");
     assert_eq!(run(&mut i, "play \"ding\"\nput the sound"), "Ding");
     assert_eq!(run(&mut i, "play stop\nput the sound"), "done");
-    // HyperCard's voices fall back to RandomCard's own.
+    // The classic app's voices fall back to RandomCard's own.
     assert_eq!(run(&mut i, "play \"harpsichord\" tempo 200 \"c4e d e f g a b c5h\"\nput the sound"), "harpsichord");
     run(&mut i, "play stop");
     assert_eq!(run(&mut i, "play \"nothing\"\nput the result"), "Can't find sound \"nothing\"");
@@ -800,7 +800,7 @@ fn built_in_commands_are_messages() {
     set_script(&i, ObjRef::Stack, "on beep\n  put \"quiet\" into msg\nend beep");
     assert_eq!(run(&mut i, "beep\nput msg"), "quiet");
     assert_eq!(lock(&i.world).beeps, 0);
-    // Setting a script from HyperTalk takes effect at once.
+    // Setting a script from xTalk takes effect at once.
     set_script(&i, ObjRef::Stack, "");
     assert_eq!(
         run(&mut i, "set the script of this stack to \"on beep\" & return & \"put 7 into msg\" & return & \"end beep\"\nbeep\nput msg"),
@@ -1107,7 +1107,7 @@ fn locked_field_selection_and_clicks() {
 fn styled_text() {
     let mut i = interp_with(stack());
     let f = "field \"Name\"";
-    // The line height follows the size until it's set, as in HyperCard.
+    // The line height follows the size until it's set, as in the classic app.
     run(&mut i, &format!("set the textSize of {f} to 12"));
     assert_eq!(run(&mut i, &format!("put the textHeight of {f}")), "16");
     run(&mut i, &format!("set the textHeight of {f} to 20"));
@@ -1197,7 +1197,7 @@ fn scripted_menus() {
 }
 
 #[test]
-fn home_has_hypercards_own_cards() {
+fn home_has_classic_home_cards() {
     let dir = std::env::temp_dir().join(format!("randomcard-homecards-{}", std::process::id()));
     let far = dir.join("far away");
     std::fs::create_dir_all(&far).unwrap();
@@ -1209,7 +1209,7 @@ fn home_has_hypercards_own_cards() {
     Stack::new("Faraway").save(&far.join("Faraway.rcstack")).unwrap();
     let mut main = stack();
     main.path = Some(dir.join("Main.rcstack"));
-    // Stack Dump's own getHomeInfo, from HyperCard 1's Home script.
+    // Stack Dump's own getHomeInfo, from classic 1's Home script.
     main.script = "on getHomeInfo\n  global stacks,applications,documents,userName\n  set lockScreen to true\n  set lockMessages to true\n  push this card\n  go to card \"User Preferences\" of stack \"Home\"\n  put card field \"User Name\" into userName\n  set userLevel to card field \"User Level\"\n  set powerKeys to the hilite of button \"Power Keys\"\n  set textArrows to the hilite of button \"Text Arrows\"\n  set blindTyping to the hilite of button \"Blind Typing\"\n  put field \"paths\" of card \"stacks\" into stacks\n  put field \"paths\" of card \"applications\" into applications\n  put field \"paths\" of card \"documents\" into documents\n  pop card\n  set lockScreen to false\n  set lockMessages to false\nend getHomeInfo".into();
     main.save(&dir.join("Main.rcstack")).unwrap();
     let mut i = interp_with(main);
@@ -1220,7 +1220,7 @@ fn home_has_hypercards_own_cards() {
         w.load_home();
     }
     assert!(Stack::load(&home_path).unwrap().cards.iter().any(|c| c.name == "User Preferences"));
-    // The level shows on the card, as HyperCard kept it there.
+    // The level shows on the card, as the classic app kept it there.
     let home_part = |i: &Interp, name: &str| -> (String, bool) {
         let mut w = lock(&i.world);
         let h = w.home_mut().unwrap();
@@ -1314,7 +1314,7 @@ fn stack_windows() {
     run(&mut i, "set the name of card 3 of stack \"Lib\" to \"Third\"");
     assert_eq!(run(&mut i, "put the short name of card 3 of stack \"Lib\""), "Third");
     assert_eq!(here(&mut i), "Main One");
-    assert_eq!(run(&mut i, "put field \"Name\""), "Apple");
+    assert_eq!(run(&mut i, "put field \"Name\""), "Apple"); // legacy-terms:ignore: fruit in the test stack, not the company
     // Read there, written here.
     run(&mut i, "put field \"Name\" of card \"Two\" of stack \"Lib\" into field \"Name\"");
     assert_eq!(run(&mut i, "put field \"Name\""), "from Main");
@@ -1342,7 +1342,7 @@ fn stack_windows() {
     // The first window stays.
     assert_eq!(run(&mut i, "close window \"Main\"\nput the result"), "The first card window stays open.");
     assert_eq!(here(&mut i), "Main One");
-    // A stack converted from HyperCard, named by its file, is the one open,
+    // A stack converted from the classic app, named by its file, is the one open,
     // not another copy (OASIS Stack goes back to itself this way).
     {
         let mut w = lock(&i.world);
@@ -1382,7 +1382,7 @@ fn stacks_home_and_libraries() {
     let this_stack = |i: &mut Interp| run(i, "put the short name of this stack");
     // Home's script is in every stack's message path.
     assert_eq!(run(&mut i, "put homeVersion()"), "Home 1.0");
-    // A bare Home names the Home stack (Apple's stacks `send "startUp" to Home`).
+    // A bare Home names the Home stack (the vendor's stacks `send "startUp" to Home`).
     assert!(!run(&mut i, "send \"beep\" to Home").starts_with("ERROR"));
     assert_eq!(run(&mut i, "put the short name of this stack"), "Main");
     // A library's is too, once it's in use.
@@ -1565,7 +1565,7 @@ fn deep_recursion_fits_the_script_stack() {
 
 #[test]
 fn plurals_as_variable_names() {
-    // Apple's Human Interface Notes stack loops with a variable named "fields".
+    // The vendor's Human Interface Notes stack loops with a variable named "fields".
     let mut i = interp_with(stack());
     run(&mut i, "repeat with fields = 1 to the number of bg fields\n  put \"x\" into bg field fields of this card\nend repeat");
     assert_eq!(run(&mut i, "put field \"Name\""), "x");
@@ -1979,7 +1979,7 @@ fn rinaldi_externals() {
     run(&mut i, "close window \"Mousoid\"");
     assert_eq!(run(&mut i, "put \"Mousoid\" is in the windows"), "false");
     assert_eq!(run(&mut i, "Mousoid \"x\", 3\nput the result"), "Error : Bad Coordinate");
-    // Promptoid: Prompt's window by HyperCard 2's means.
+    // Promptoid: Prompt's window by classic 2's means.
     run(&mut i, "Promptoid \"Working\"");
     assert_eq!(run(&mut i, "Promptoid \"Again\"\nput the result"), "Error : Promptoid already displayed");
     run(&mut i, "set text of window \"Promptoid\" to \"Test 2\"");
@@ -1998,14 +1998,14 @@ fn rinaldi_externals() {
     assert_eq!(run(&mut i, "SendPS empty\nput the result"), "Error : Missing parameter");
     // Notification waits only when RandomCard is in the background.
     assert_eq!(run(&mut i, "Notification\nput the result"), "");
-    // A SuperCard branch's `top of window` breaks only its own handler,
-    // which HyperCard never runs (checked in HyperCard 2.4.1).
+    // A a later card-stack tool branch's `top of window` breaks only its own handler,
+    // which the classic app never runs (checked in classic 2.4.1).
     set_script(&i, ObjRef::Stack, "on works\n  put 42\nend works\nfunction SCTop\n  return top of window\nend SCTop");
     assert_eq!(run(&mut i, "works"), "42");
 }
 
 #[test]
-fn hypercard_leniencies_run() {
+fn classic_leniencies_run() {
     let mut i = interp_with(stack());
     let dir = std::env::temp_dir();
     let d = crate::runtime::paths::shown(&dir);
@@ -2020,7 +2020,7 @@ fn hypercard_leniencies_run() {
 }
 
 #[test]
-fn hypercard_1_documents_stack() {
+fn classic_v1_documents_stack() {
     let dir = std::env::temp_dir().join(format!("randomcard-documents-{}", std::process::id()));
     let docs = dir.join("Letters");
     std::fs::create_dir_all(&docs).unwrap();
@@ -2057,14 +2057,14 @@ fn hypercard_1_documents_stack() {
     run(&mut i, "global documents\ngetdocs line 1 of documents");
     assert_eq!(run(&mut i, "put the number of cards"), "4");
     // Open, with the program GetCreator names.
-    assert_eq!(run(&mut i, "put GetCreator(\"WILD\")"), "HyperCard");
+    assert_eq!(run(&mut i, "put GetCreator(\"WILD\")"), "HyperCard"); // legacy-compat: what GetCreator answered for creator WILD
     run(&mut i, "put GetCreator(field \"Creator\") into appName\nopen field \"Name\" with appName");
     assert_eq!(i.printed.last(), Some(&docs.join("Note.txt")));
     assert_eq!(run(&mut i, "open \"No Such Program\"\nput the result"), "Cancel");
     // `show card window at` moves the window.
     run(&mut i, "show card window at 30,40");
     assert_eq!(lock(&i.world).window_origin, (30, 40));
-    // Convert leaves what isn't a date alone, as HyperCard did.
+    // Convert leaves what isn't a date alone, as the classic app did.
     assert_eq!(run(&mut i, "put \"soon\" into x\nconvert x to long date\nput the result && x"), "Invalid date soon");
     let _ = std::fs::remove_dir_all(&dir);
 }
@@ -2131,7 +2131,7 @@ fn dynamic_path_reaches_the_current_card() {
 fn forms_from_apples_stacks() {
     let mut i = interp_with(stack());
     set_script(&i, ObjRef::Stack, "on showCategory a, b\n  put a & \"/\" & b\nend showCategory");
-    // `do` with several words runs them as a statement, as HyperCard did.
+    // `do` with several words runs them as a statement, as the classic app did.
     assert_eq!(run(&mut i, "put 3 into cardNum\ndo ShowCategory CardNum,2"), "3/2");
     assert_eq!(run(&mut i, "do ShowCategory \"1\""), "1/");
     // A part's number, with or without `the`.
@@ -2169,9 +2169,9 @@ fn forms_from_apples_stacks() {
 
 
 #[test]
-fn hypercard_2_menu_items() {
+fn classic_v2_menu_items() {
     let mut i = interp_with(stack());
-    // Apple's stacks edit HyperCard 2's items by name, including ones the
+    // The vendor's stacks edit classic 2's items by name, including ones the
     // menus don't show.
     assert_eq!(run(&mut i, "delete menuItem \"print report...\" of menu \"file\""), "");
     assert_eq!(run(&mut i, "disable menuItem \"Compact Stack\" of menu \"File\""), "");
@@ -2208,7 +2208,7 @@ fn compact_stack_frees_space_and_saves() {
     run(&mut i, "doMenu \"Compact Stack\"");
     assert_eq!(run(&mut i, "put the freeSize of this stack"), "0");
     assert_eq!(run(&mut i, "put the size of this stack"), (size - free).to_string());
-    // It's saved, as HyperCard's Compact Stack wrote the stack.
+    // It's saved, as the classic app's Compact Stack wrote the stack.
     let saved = Stack::load(&path).unwrap();
     assert!(!saved.cards[0].bg_text.contains_key(&4242));
     assert!(!lock(&i.world).dirty);
@@ -2404,7 +2404,7 @@ fn index_one(path: &std::path::Path) -> Facts {
         scripts.push(c.script.clone());
         scripts.extend(c.parts.iter().map(|p| p.script.clone()));
     }
-    f.bad_scripts = scripts.iter().filter(|s| crate::hypertalk::parser::parse_script(s).is_err()).count();
+    f.bad_scripts = scripts.iter().filter(|s| crate::lang::parser::parse_script(s).is_err()).count();
     // Open it, stopping anything that runs longer than three seconds.
     let mut i = interp_with(stack);
     let abort = i.abort.clone();
@@ -2445,7 +2445,7 @@ fn index_one(path: &std::path::Path) -> Facts {
 fn scripts_move_the_card_window() {
     let mut i = interp_with(stack());
     let (w, h) = { let w = lock(&i.world); (w.stack.width as i32, w.stack.height as i32) };
-    // Apple's stacks center the window on the screen this way.
+    // The vendor's stacks center the window on the screen this way.
     run(&mut i, "get the screenRect\nset the loc of cd window to (item 3 of it-512)/2,(item 4 of it-342)/2");
     assert_eq!(run(&mut i, "put the loc of card window"), "704,369");
     assert_eq!(run(&mut i, "put the rect of this stack"), format!("704,369,{},{}", 704 + w, 369 + h));
@@ -2498,8 +2498,8 @@ fn pop_up_menus_for_scripts() {
 
 #[test]
 fn script_windows_from_scripts() {
-    // Apple's Bug Reporter opens its fields in TEXWindow windows and reads
-    // them back as HyperCard 2 windows.
+    // The vendor's Bug Reporter opens its fields in TEXWindow windows and reads
+    // them back as classic 2 windows.
     let mut i = interp_with(stack());
     run(&mut i, "TEXWindow \"Notes\", \"Hello\", 10, 10, 300, 200, \"Geneva\", 12, 16, -1");
     assert_eq!(run(&mut i, "put there is a window \"Notes\""), "true");
@@ -2527,7 +2527,7 @@ fn script_windows_from_scripts() {
 
 #[test]
 fn palettes() {
-    // As Apple's Info Island stacks use them: a navigation palette whose
+    // As the vendor's Info Island stacks use them: a navigation palette whose
     // buttons send messages to the card, opened at a point and closed by
     // the stack's scripts.
     use crate::model::{Palette, PaletteButton, Picture, Rect};
@@ -2616,7 +2616,7 @@ fn mail_and_volumes() {
 
 #[test]
 fn progress_windows() {
-    // As Apple's ProgressWindoid stack drives one: create it hidden, show
+    // As the vendor's ProgressWindoid stack drives one: create it hidden, show
     // it, fill it, move it, read it back, close it.
     let mut i = interp_with(stack());
     assert_eq!(
@@ -2716,7 +2716,7 @@ fn files_and_folders() {
 
 #[test]
 fn forms_from_apples_develop_stacks() {
-    use crate::hypertalk::parser::parse_script;
+    use crate::lang::parser::parse_script;
     // The develop stacks' index: the Scroll palette, a card and stack named
     // with &&, and a handler with a period in its name.
     assert!(parse_script("on openStack\n  hide scroll window\n  show scroll window\nend openStack").is_ok());
@@ -2783,7 +2783,7 @@ fn dump_scripts() {
         // RANDOMCARD_DUMP_ERRORS: only the scripts that don't parse, with the
         // line each stops at.
         let errors_only = std::env::var("RANDOMCARD_DUMP_ERRORS").is_ok();
-        match crate::hypertalk::parser::parse_script(script) {
+        match crate::lang::parser::parse_script(script) {
             Err(e) => {
                 println!("   PARSE ERROR: {e}");
                 let line: Option<usize> = e.to_string().strip_prefix("line ").and_then(|r| r.split(':').next()).and_then(|n| n.parse().ok());
@@ -2835,7 +2835,7 @@ fn vocabulary_probe() {
                 };
                 let tries: Vec<String> = match cat {
                     "Function" => vec![format!("the {name}"), format!("{name}()"), format!("{name}(1)"), format!("{name}(1,2)"), format!("{name}(\"a\")")],
-                    "Property" => ["", " of this card", " of this stack", " of card button 1", " of card field 1", " of bkgnd field 1", " of this bkgnd", " of card window", " of msg", " of menu 1", " of menuItem 1 of menu 1", " of HyperCard"]
+                    "Property" => ["", " of this card", " of this stack", " of card button 1", " of card field 1", " of bkgnd field 1", " of this bkgnd", " of card window", " of msg", " of menu 1", " of menuItem 1 of menu 1", " of HyperCard"] // legacy-compat: script syntax: properties of the app object
                         .iter()
                         .map(|o| format!("the {name}{o}"))
                         .collect(),
@@ -2864,7 +2864,7 @@ fn vocabulary_probe() {
         .unwrap();
 }
 
-/// Parse a concrete example of every command form in HyperCard's syntax
+/// Parse a concrete example of every command form in the classic app's syntax
 /// summary (form TAB statement, one per line, in RANDOMCARD_COMMANDS):
 /// FAIL if it doesn't parse, IGNORED if it parses to nothing.
 #[test]
@@ -2873,10 +2873,10 @@ fn command_forms_probe() {
     let Ok(path) = std::env::var("RANDOMCARD_COMMANDS") else { return };
     for line in std::fs::read_to_string(path).unwrap().lines() {
         let Some((form, stmt)) = line.split_once('\t') else { continue };
-        match crate::hypertalk::parser::parse_statements(stmt) {
+        match crate::lang::parser::parse_statements(stmt) {
             Err(e) => println!("FAIL\t{form}\t{stmt}\t{e}"),
             Ok(stmts) => {
-                let ignored = stmts.iter().all(|s| matches!(&s.kind, crate::hypertalk::ast::StmtKind::Cmd { cmd: crate::hypertalk::ast::Cmd::NoOp, .. }));
+                let ignored = stmts.iter().all(|s| matches!(&s.kind, crate::lang::ast::StmtKind::Cmd { cmd: crate::lang::ast::Cmd::NoOp, .. }));
                 println!("{}\t{form}\t{stmt}", if ignored { "IGNORED" } else { "OK" });
             }
         }
@@ -3006,7 +3006,7 @@ fn import_and_export_paint() {
     std::fs::write(&png, crate::paint::image_file::encode_png(3, 2, &rgba).unwrap()).unwrap();
     let mut i = interp_with(stack());
     let png_name = png.display().to_string();
-    // Only with a paint tool, as in HyperCard; otherwise it's in the result.
+    // Only with a paint tool, as in the classic app; otherwise it's in the result.
     let r = run(&mut i, &format!("import paint from file \"{png_name}\"\nput the result"));
     assert!(r.contains("paint tool"), "{r}");
     // (Straight to the interpreter, so the requests are still there.)
@@ -3143,7 +3143,7 @@ fn addcolor_commands() {
 }
 
 #[test]
-fn rest_from_hypertalk() {
+fn rest_from_scripts() {
     let base = crate::web::http::test_server::start(|_, path, headers, _| match path {
         "/jokes/random" => (
             200,
@@ -3279,7 +3279,7 @@ fn dont_save_fields_open_empty() {
 }
 
 #[test]
-fn every_http_verb_from_hypertalk() {
+fn every_http_verb_from_scripts() {
     let base = crate::web::http::test_server::start(|method, path, _, body| match path {
         "/echo" => (200, "text/plain", format!("{method}:{body}")),
         _ => (404, "text/plain", "gone".into()),
@@ -3309,7 +3309,7 @@ fn every_http_verb_from_hypertalk() {
 }
 
 #[test]
-fn writing_json_from_hypertalk() {
+fn writing_json_from_scripts() {
     let mut i = interp_with(stack());
     run(&mut i, "put \"{}\" into body");
     run(&mut i, "set key \"name\" of json body to \"Ada\"");
@@ -3397,7 +3397,7 @@ fn requests_that_dont_wait() {
     run(&mut i, &format!("put \"{base}\" into base"));
     // The script goes on at once; the reply comes later as a message.
     assert_eq!(run(&mut i, "load url (base & \"/slow\") with message \"gotIt\"\nput \"went on\""), "went on");
-    assert_eq!(run(&mut i, "put field \"Name\""), "Apple");
+    assert_eq!(run(&mut i, "put field \"Name\""), "Apple"); // legacy-terms:ignore: fruit in the test stack, not the company
     let reply = rx.recv_timeout(std::time::Duration::from_secs(5)).expect("a reply");
     i.handle_event(reply);
     assert_eq!(run(&mut i, "put field \"Name\""), format!("late joke from {base}/slow 200 OK"));
@@ -3548,7 +3548,7 @@ fn stack_fonts() {
     }
 }
 
-/// Import a HyperCard stack (or open any stack) and save it as a RandomCard
+/// Import a classic stack (or open any stack) and save it as a RandomCard
 /// stack: RANDOMCARD_CONVERT=in RANDOMCARD_OUT=out.rcstack cargo test --release convert_stack -- --ignored
 #[test]
 #[ignore]
@@ -3571,7 +3571,7 @@ fn a_parameter_named_message() {
 
 #[test]
 fn picture_in_a_card() {
-    // HyperTalk takes "in" for "of" (Adventures of Sean).
+    // xTalk takes "in" for "of" (Adventures of Sean).
     let mut i = interp_with(stack());
     assert_eq!(run(&mut i, "hide picture in card 2\nput the showPict of card 2"), "false");
     assert_eq!(run(&mut i, "show picture of card 2\nput the showPict of card 2"), "true");
@@ -3579,7 +3579,7 @@ fn picture_in_a_card() {
 
 #[test]
 fn message_box_variables_are_globals() {
-    // HyperCard: a variable used in the message box is a global.
+    // The classic app: a variable used in the message box is a global.
     let mut i = interp_with(stack());
     set_script(&i, ObjRef::Stack, "on setIt\nglobal score\nput 12 into score\nend setIt\nfunction score\nglobal score\nreturn score\nend score");
     assert_eq!(run(&mut i, "setIt\nput score"), "12");
@@ -3591,7 +3591,7 @@ fn message_box_variables_are_globals() {
 
 #[test]
 fn the_selected_text_of_a_field() {
-    // HyperCard 2.2: a list field's chosen line, asked of the field.
+    // Classic 2.2: a list field's chosen line, asked of the field.
     let mut i = interp_with(stack());
     run(&mut i, "put \"red\" & return & \"green\" & return & \"blue\" into field \"Name\"");
     run(&mut i, "select line 2 of field \"Name\"");
@@ -3604,7 +3604,7 @@ fn the_selected_text_of_a_field() {
 }
 
 
-/// What HyperGames needed, each checked against HyperCard 2.4.1.
+/// What HyperGames needed, each checked against classic 2.4.1.
 #[test]
 fn hypergames_language() {
     let mut i = interp_with(stack());
@@ -3648,7 +3648,7 @@ fn names_of_spaces_and_tabs() {
 
 #[test]
 fn sound_channels() {
-    // HyperCard 2.4: `play` uses the current channel, so a chord is three.
+    // Classic 2.4: `play` uses the current channel, so a chord is three.
     let mut i = interp_with(stack());
     assert_eq!(run(&mut i, "put the soundChannel"), "1");
     run(&mut i, "set soundChannel to 1\nplay \"harpsichord\" c\nset soundChannel to 2\nplay \"harpsichord\" e\nset soundChannel to 3\nplay \"harpsichord\" g");
@@ -3661,7 +3661,7 @@ fn sound_channels() {
 
 #[test]
 fn a_variable_named_box() {
-    // Get Rich Quick keeps "global box"; HyperCard allows it, and "message
+    // Get Rich Quick keeps "global box"; the classic app allows it, and "message
     // box" still means the message box.
     let mut i = interp_with(stack());
     assert_eq!(run(&mut i, "put 5 into box\nput box + 1"), "6");
@@ -3688,21 +3688,21 @@ fn a_variable_in_a_chunk_position() {
 
 #[test]
 fn a_bare_colon() {
-    // HyperCard takes `set itemDelimiter to :` as the colon (checked in 2.4.1).
+    // The classic app takes `set itemDelimiter to :` as the colon (checked in 2.4.1).
     let mut i = interp_with(stack());
     assert_eq!(run(&mut i, "set itemDelimiter to :\nput item 2 of \"a:b:c\" && the itemDelimiter"), "b :");
 }
 
 #[test]
 fn home_from_before_loses_import_button() {
-    // A Home saved when it had Import a HyperCard Stack… third of five.
+    // A Home saved when it had Import a classic Stack… third of five.
     let mut home = Stack::home();
     let card = &mut home.cards[0];
     let new_stack = card.parts.iter().position(|p| p.name == "New Stack…").unwrap();
     let r = card.parts[new_stack].rect;
     let mut import = card.parts[new_stack].clone();
-    import.name = "Import a HyperCard Stack…".into();
-    import.script = "on mouseUp\n  doMenu \"Import HyperCard Stack…\"\nend mouseUp".into();
+    import.name = "Import a HyperCard Stack…".into(); // legacy-compat: a button old saved Homes carry
+    import.script = "on mouseUp\n  doMenu \"Import HyperCard Stack…\"\nend mouseUp".into(); // legacy-compat: a button old saved Homes carry
     for p in card.parts.iter_mut().filter(|p| p.rect.top >= r.top && p.kind == crate::model::PartKind::Button) {
         p.rect = crate::model::Rect::new(p.rect.left, p.rect.top + 38, p.rect.right, p.rect.bottom + 38);
     }
@@ -3796,7 +3796,7 @@ fn the_solitaire_stack() {
         scripts.extend(c.parts.iter().map(|p| (format!("{} {}", c.name, p.name), p.script.clone())));
     }
     for (name, script) in &scripts {
-        if let Err(e) = crate::hypertalk::parser::parse_script(script) {
+        if let Err(e) = crate::lang::parser::parse_script(script) {
             panic!("{name}: {e:?}");
         }
     }
@@ -4077,16 +4077,16 @@ fn the_swatches_stack() {
     assert_eq!(click(&mut i, "About", "Test Connection"), None);
 }
 
-/// Every example in HYPERTALK.md, the language reference, parses.
+/// Every example in SCRIPTING.md, the language reference, parses.
 #[test]
-fn hypertalk_reference_examples_parse() {
+fn script_reference_examples_parse() {
     // Windows checks text files out with CRLF line endings.
-    let doc = include_str!("../../HYPERTALK.md").replace("\r\n", "\n");
+    let doc = include_str!("../../SCRIPTING.md").replace("\r\n", "\n");
     let mut blocks = 0;
-    for (n, block) in doc.split("```hypertalk\n").skip(1).enumerate() {
+    for (n, block) in doc.split("```xtalk\n").skip(1).enumerate() {
         let src = block.split("```").next().unwrap_or_default();
-        if let Err(e) = crate::hypertalk::parser::parse_script(src) {
-            panic!("HYPERTALK.md example {}: {e}\n{src}", n + 1);
+        if let Err(e) = crate::lang::parser::parse_script(src) {
+            panic!("SCRIPTING.md example {}: {e}\n{src}", n + 1);
         }
         blocks += 1;
     }
@@ -4114,7 +4114,7 @@ fn parse_stack_scripts() {
                 all.push((format!("card {} part {}", c.id, p.id), p.script.clone()));
             }
         }
-        let bad: Vec<String> = all.iter().filter_map(|(d, sc)| crate::hypertalk::parser::parse_script(sc).err().map(|e| format!("  {d}: {e:?}"))).collect();
+        let bad: Vec<String> = all.iter().filter_map(|(d, sc)| crate::lang::parser::parse_script(sc).err().map(|e| format!("  {d}: {e:?}"))).collect();
         println!("{path}: {} scripts, {} don't parse", all.len(), bad.len());
         for b in bad {
             println!("{b}");
@@ -4125,7 +4125,7 @@ fn parse_stack_scripts() {
 
 #[test]
 fn go_to_a_card_id_left_out() {
-    // Shattered Stone leaves exits to nowhere as `go to cd id --`: HyperCard
+    // Shattered Stone leaves exits to nowhere as `go to cd id --`: the classic app
     // compiles it, and says "No such card." only when it runs.
     let mut i = interp_with(stack());
     assert_eq!(run(&mut i, "if 1 = 2 then\ngo to cd id\nend if\nput 44"), "44");
@@ -4134,7 +4134,7 @@ fn go_to_a_card_id_left_out() {
     assert_eq!(run(&mut i, "go to card id 99999\nput the result"), "No such card.");
 }
 
-/// HyperCard 2.4's movie syntax, and a movie played through it when the
+/// Classic 2.4's movie syntax, and a movie played through it when the
 /// system can play movies (GStreamer on Linux).
 #[test]
 fn movies() {
@@ -4225,10 +4225,10 @@ fn movies() {
     assert_eq!(lock(&i.world).msg, "Can't find the movie \"No Such Movie\"");
 }
 
-/// AddColor's color pictures, in HyperCard 2.4.1's own stacks (when they're
+/// AddColor's color pictures, in classic 2.4.1's own stacks (when they're
 /// here): kept with the stack as it's imported, for its items to show.
 #[test]
-fn addcolor_pictures_from_hypercard_241() {
+fn addcolor_pictures_from_classic_241() {
     let dir = std::path::Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/apple/hypercard_241_stacks"));
     for (stack, want) in [("HyperCard Stacks/New Features", 1), ("Color Tools", 7)] {
         let path = dir.join(stack);
@@ -4255,7 +4255,7 @@ fn addcolor_pictures_from_hypercard_241() {
     }
 }
 
-/// What the Color Tools stack (HyperCard 2.4.1's) needed: `lock recent`,
+/// What the Color Tools stack (classic 2.4.1's) needed: `lock recent`,
 /// Enviro, the message box as a window, and pictures placed at a point.
 #[test]
 fn color_tools_needs() {
@@ -4291,21 +4291,21 @@ fn color_tools_needs() {
     assert_eq!(run(&mut i, "addColor getObjectBounds,cd,1\nput the result"), "43,94,73,114");
 }
 
-/// HyperCard 2.4.1's own stacks stay working: every stack listed in
-/// tests/hc241_clean.txt (written by tools/hc241.py from a full run) is
+/// Classic 2.4.1's own stacks stay working: every stack listed in
+/// tests/classic241_clean.txt (written by tools/classic241.py from a full run) is
 /// opened and every scripted button on every card clicked, without a
-/// script error. The stacks are Apple's and not in git, so this runs
+/// script error. The stacks are the vendor's and not in git, so this runs
 /// wherever examples/apple/hypercard_241_stacks is, and passes elsewhere.
 /// Clicks stopped by the two-second limit (timed demos) aren't errors.
-/// Stacks marked `slow:` (over a minute) run with RANDOMCARD_HC241_SLOW=1.
+/// Stacks marked `slow:` (over a minute) run with RANDOMCARD_CLASSIC241_SLOW=1.
 #[test]
-fn hypercard_241_stacks_stay_clean() {
+fn classic_241_stacks_stay_clean() {
     let dir = std::path::Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/apple/hypercard_241_stacks"));
     if !dir.exists() {
         return;
     }
-    let slow = std::env::var("RANDOMCARD_HC241_SLOW").is_ok();
-    let names: Vec<&str> = include_str!("../../tests/hc241_clean.txt")
+    let slow = std::env::var("RANDOMCARD_CLASSIC241_SLOW").is_ok() || std::env::var("RANDOMCARD_CLASSIC241_SLOW").is_ok(); // legacy-compat: the variable's old name
+    let names: Vec<&str> = include_str!("../../tests/classic241_clean.txt")
         .lines()
         .map(str::trim)
         .filter(|l| !l.is_empty() && !l.starts_with('#'))
@@ -4335,5 +4335,5 @@ fn hypercard_241_stacks_stay_clean() {
             broken.push(format!("{name}: {}", errors.join("; ")));
         }
     }
-    assert!(broken.is_empty(), "HyperCard 2.4.1 stacks that were clean have errors:\n{}", broken.join("\n"));
+    assert!(broken.is_empty(), "Classic 2.4.1 stacks that were clean have errors:\n{}", broken.join("\n"));
 }

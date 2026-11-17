@@ -1,4 +1,4 @@
-//! RandomCard's own preferences (HyperCard kept these in the Home stack),
+//! RandomCard's own preferences (the classic app kept these in the Home stack),
 //! stored in `~/.config/randomcard/settings.json`.
 
 use std::path::PathBuf;
@@ -28,7 +28,7 @@ pub struct Settings {
 
 impl Default for Settings {
     fn default() -> Self {
-        // Like the full HyperCard: scripting level, tools at hand.
+        // Like the full classic app: scripting level, tools at hand.
         Settings {
             user_level: 5,
             show_tools: true,
@@ -107,7 +107,7 @@ impl Settings {
     }
 }
 
-/// HyperCard's names for the user levels.
+/// The classic app's names for the user levels.
 pub fn level_name(level: u8) -> &'static str {
     match level {
         1 => "Browsing",

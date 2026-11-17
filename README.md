@@ -1,8 +1,9 @@
 # RandomCard
 
-A recreation of Apple's HyperCard in Rust: stacks of cards, backgrounds, buttons
-and fields, MacPaint-style painting, and a HyperTalk interpreter with
-HyperCard's message passing.
+A card-stack authoring environment in Rust that opens and runs classic stacks:
+stacks of cards, backgrounds, buttons and fields, MacPaint-style painting, and
+an xTalk interpreter with the classic app's message passing. ("Classic" is
+explained under [Compatibility and trademarks](#compatibility-and-trademarks).)
 
 ## Download
 
@@ -21,7 +22,7 @@ previews: expect rough edges, and please report what you find.
 ```sh
 cargo run --release                 # opens your Home stack
 cargo run --release -- my.rcstack   # opens a stack file
-cargo run --release -- "Home"       # imports an original HyperCard stack
+cargo run --release -- "Home"       # imports an original classic stack
 cargo test                          # language, runtime and demo-stack tests
 ```
 
@@ -30,18 +31,18 @@ On a Mac, `tools/make_mac_app.sh` builds `RandomCard.app` and puts it in
 
 ## What's there
 
-The language is described in [HYPERTALK.md](HYPERTALK.md), the HyperTalk
-reference: HyperCard 2.4.1's language as RandomCard runs it, the old
+The language is described in [SCRIPTING.md](SCRIPTING.md), the xTalk
+reference: classic 2.4.1's language as RandomCard runs it, the old
 externals now built in, and RandomCard's additions.
 
 **Stacks.** A stack holds backgrounds and cards. Each card belongs to a
 background, and both layers have a picture plus buttons and fields. Background
 fields keep separate text on each card unless `sharedText` is set. Background
 buttons work the same way with `sharedHilite`. Stacks save as JSON
-(`.rcstack`). Like HyperCard, changes are saved automatically once a stack has
+(`.rcstack`). Like the classic app, changes are saved automatically once a stack has
 a file.
 
-**Home and other stacks.** As HyperCard came with one, RandomCard makes a
+**Home and other stacks.** As the classic app came with one, RandomCard makes a
 Home stack the first time it runs, at `~/.config/randomcard/Home.rcstack`,
 and opens it at startup. Go ▸ Home (Ctrl+H) and `go home` return to it, and
 its button takes you to the built-in Tour. Scripts can `go to stack "X"` or
@@ -49,33 +50,33 @@ its button takes you to the built-in Tour. Scripts can `go to stack "X"` or
 without a file stays loaded so you can come back to it.
 
 **The Tour.** The built-in Tour stack (`go to stack "Tour"`) is a hands-on
-demo of what works: HyperTalk basics, dice with a popup and AddColor,
+demo of what works: xTalk basics, dice with a popup and AddColor,
 painting, animation, sound, movies, keyboard messages,
 field options and styled text, printing, Find and Recent, the debugger, and
 an address book on its own background. Its buttons' scripts are worth
 reading with the Button tool. It's built fresh each time it opens, so it
 always matches this version of RandomCard.
 
-**Opening HyperCard stacks.** File ▸ Open Stack… (or a path on the command
-line) opens original HyperCard 1.x and 2.x stack files as well as
+**Opening classic stacks.** File ▸ Open Stack… (or a path on the command
+line) opens the original app 1.x and 2.x stack files as well as
 RandomCard's own, converting them as they open. MacBinary-wrapped files work too. The import brings in:
 
 - cards in stack order, backgrounds, card and background names, marked
   cards, and the cantDelete, dontSearch and showPict flags;
-- card and background pictures, decoded from HyperCard's WOBA compression;
+- card and background pictures, decoded from the classic app's WOBA compression;
 - buttons and fields with their styles, flags, families, fonts, sizes and
   text styles;
 - shared and per-card field text, and per-card hilites of background
   buttons;
 - every script;
 - button icons and sounds from the stack's resource fork;
-- AddColor colors (HyperCard 2.x's color XCMD) for buttons, fields and
+- AddColor colors (classic 2.x's color external command) for buttons, fields and
   rectangles, and its color pictures (PICT resources from the stack, and
   PICT files beside it). They're drawn as AddColor drew them: the white
   of the card takes the color, and black stays black.
 
 Text is converted to Unicode from MacRoman, or from MacJapanese
-(Shift-JIS) for stacks made with Japanese HyperCard, which RandomCard
+(Shift-JIS) for stacks made with the Japanese classic edition, which RandomCard
 tells by their Japanese fonts. Japanese text is drawn in the system's
 Japanese font (Noto Sans CJK on Linux, Hiragino on macOS, Yu Gothic on
 Windows). The result opens as an unsaved stack; save it to keep it as a
@@ -89,39 +90,39 @@ if it's MacBinary or AppleSingle, and the real fork on macOS. Icons and
 sounds are saved into the `.rcstack`. Sounds can be 8- or 16-bit, mono or
 stereo, uncompressed or IMA4-compressed; MACE-compressed sounds are skipped.
 
-Many stacks use HyperCard's built-in icons, which live in the HyperCard
-application rather than the stack. As HyperCard did, RandomCard follows a
-resource chain for icons and sounds the stack lacks: files named `Home`, `HyperCard`
-or `HyperCard Player` beside the stack, then any resource files you put in
+Many stacks use the classic app's built-in icons, which live in the classic
+application rather than the stack. As the classic app did, RandomCard follows a
+resource chain for icons and sounds the stack lacks: files named `Home`, `HyperCard` <!-- legacy-compat: resource file names on disk -->
+or `HyperCard Player` beside the stack, then any resource files you put in <!-- legacy-compat: resource file names on disk -->
 `~/.config/randomcard/resources/` (such as the resource fork of your own
-copy of HyperCard). Only icons the stack's buttons use, and sounds its
+copy of the classic app). Only icons the stack's buttons use, and sounds its
 scripts name in quotes, are copied.
 
 Styled text comes across with its fonts, sizes and styles. What doesn't
-come across: XCMDs and XFCNs, and PICT pictures other than AddColor's,
+come across: externals, and PICT pictures other than AddColor's,
 palettes' and pasted ones. Private-access stacks import, since only the stack header is
 encrypted; they ask for their password. Protection comes across too:
 the user-level limit, password, Can't Modify and the other flags. Scripts
 that use palettes or other windows parse, but those commands do nothing.
 
-**User levels.** As in HyperCard, five levels decide what you can do:
+**User levels.** As in the classic app, five levels decide what you can do:
 Browsing, Typing (edit field text), Painting (paint tools and the Paint
 menu), Authoring (the Button and Field tools, the Objects menu, Info
 dialogs) and Scripting (scripts). RandomCard runs at Scripting by default,
-like the full HyperCard. Pick another level in File ▸ Preferences…. Stacks
+like the full classic app. Pick another level in File ▸ Preferences…. Stacks
 can lower it with `set the userLevel`. The demo's Address Book drops to
 Typing while you're in it.
 
 File ▸ Protect Stack… sets Can't Modify, Can't Delete, Can't Abort, Can't
 Peek and Private Access, limits the user level, and sets a password, using
-HyperCard's own password scheme. A password is then needed to open Protect
+the classic app's own password scheme. A password is then needed to open Protect
 Stack or, through Preferences ▸ Unlock with Password…, to go above the
 limit. Protection stops casual changes. It isn't encryption.
 
 At Painting level and above, the **Tools palette** is a small window of
 its own that stays in front and acts on whichever stack is in front. It
 holds the tools and what they paint with; the Paint menu joins the menu
-bar while a paint tool is chosen, as in HyperCard. Show or hide it with View ▸ Tools Palette or Ctrl+T; it
+bar while a paint tool is chosen, as in the classic app. Show or hide it with View ▸ Tools Palette or Ctrl+T; it
 opens again where you last put it. On desktops that can't keep a window in
 front (some Wayland desktops), or on a small screen, Preferences can dock
 it at the window's left instead. The message box opens at the bottom of
@@ -143,14 +144,14 @@ the window. Preferences are saved in `~/.config/randomcard/settings.json`.
     Multiple. Regular Polygon: the line size, Filled, its sides and
     Multiple. Polygon: the line size and Filled.
   - Brush: its 16 shapes. Spray: its size (a circle 8 to 32 pixels across)
-    and density (Light, Medium or Heavy), beyond HyperCard, whose spray was
+    and density (Light, Medium or Heavy), beyond the classic app, whose spray was
     always 16 pixels and Medium.
   - The line size and the sides are pull-downs showing the line and the
     polygon. Filled (Draw Filled) fills shapes with the pattern; Centered
     (Draw Centered) grows them from where you start; Multiple (Draw
     Multiple) leaves the shape behind as you drag, Option-1 to Option-9
     spacing the copies.
-  - Double-clicking the pencil turns on FatBits, as in HyperCard.
+  - Double-clicking the pencil turns on FatBits, as in the classic app.
 - **Patterns**, while a paint tool is chosen:
   - **The line and fill colors**, as two overlapping squares, the line
     color in front. Click one for a color picker with red, green and blue,
@@ -159,9 +160,9 @@ the window. Preferences are saved in `~/.config/randomcard/settings.json`.
     card. The pencil, lines, outlines and text use the line color; the
     pattern paints in the fill color.
   - **The pattern.** Click it for the 40 patterns, in the fill color, as
-    HyperCard's Patterns menu dropped them down (imported stacks bring
+    the classic app's Patterns menu dropped them down (imported stacks bring
     their own).
-  - **Edit…**, beside the pattern, opens HyperCard's pattern editor: click
+  - **Edit…**, beside the pattern, opens the classic app's pattern editor: click
     squares to turn them on or off, Invert, or click Card… and then the
     card to take the pattern there. OK keeps the new pattern with the
     stack. Double-clicking the pattern does the same.
@@ -173,7 +174,7 @@ the window. Preferences are saved in `~/.config/randomcard/settings.json`.
   with the same spot at actual size in a corner; Option-drag or scroll to
   move around. Command-click with the pencil turns it on too.
 
-Over the card, the pointer is the tool, as in HyperCard: the brush as its
+Over the card, the pointer is the tool, as in the classic app: the brush as its
 shape at its real size, in the fill color; the eraser's square; the spray
 can's circle; and the pencil and the bucket with their tips where paint
 lands. Lines, shapes and selecting get a crosshair, and the Text tool an
@@ -183,7 +184,7 @@ Browse, Button and Field don't paint, so with them the palette shows only
 the tools.
 
 **The Paint menu** is in the menu bar while a paint tool is chosen, as in
-HyperCard:
+the classic app:
 - **Select** selects what you just painted (since your last click on the
   card), held tightly with the lasso, even on top of other paint. With
   nothing just painted, it tightens the selection, or takes everything
@@ -203,7 +204,7 @@ HyperCard:
   by going to another card. (RandomCard still saves paint as you go;
   Revert is how you go back.)
 
-Selecting, as in HyperCard (Command and Option are Ctrl and Alt on Linux
+Selecting, as in the classic app (Command and Option are Ctrl and Alt on Linux
 and Windows): the lasso hugs what's painted, leaving out the
 blank around it (Option-drag to take all it goes around), and
 Command-clicking a shape with it takes that shape. With the Select tool,
@@ -211,9 +212,9 @@ Command-drag for a rectangle tight around what's painted, or Option-drag
 for just what's painted. Command-drag a selection's edge or corner to
 stretch or shrink it; Command-Shift on a corner keeps its proportions.
 
-**Rotate, Slant, Distort and Perspective** (HyperCard's Options menu) are
+**Rotate, Slant, Distort and Perspective** (the classic app's Options menu) are
 buttons at the bottom of the palette while the Select tool is chosen. With
-a rectangle selected (a lasso selection doesn't work, as in HyperCard),
+a rectangle selected (a lasso selection doesn't work, as in the classic app),
 choose one and the selection's corners become handles: Rotate turns it
 (Shift for steps of 15°), Slant slides an edge to lean the sides, Distort
 moves each corner anywhere, and Perspective widens or narrows an edge
@@ -222,17 +223,17 @@ the four, and click away from it when you're done; Undo puts it back as
 it was. Scripts choose them with `doMenu "Rotate"` and the rest, and
 `drag from … to …` with the Select tool selects a rectangle.
 
-The palette's buttons choose HyperCard's menu items, so stacks that say
+The palette's buttons choose the classic app's menu items, so stacks that say
 `doMenu "Draw Filled"` or `doMenu "Edit Pattern"`, or catch `doMenu`, work
 as before, and an item a stack disables greys out its button. Scripts move
-and show the palette as HyperCard's: `show tool window at 20,60`, `the loc
+and show the palette as the classic app's: `show tool window at 20,60`, `the loc
 of tool window`, and `show pattern window`, which shows the same palette.
 Power Keys (in Preferences) gives paint commands single keys while the
 message box is hidden: S for Select, P for Pickup, R for Revert, F for
 Fill, I for Invert, G for Grid, B and W for black and white, and the rest
-of HyperCard's.
+of the classic app's.
 
-**Peeking,** as in HyperCard: hold Command-Option (Ctrl+Alt on Linux and
+**Peeking,** as in the classic app: hold Command-Option (Ctrl+Alt on Linux and
 Windows) to outline every button on the card, so a transparent or tiny one
 can be found, and add Shift to outline the fields too. Stacks marked Can't
 Peek don't allow it.
@@ -242,7 +243,7 @@ pixel, in color and at any size.
 
 **Editing.** The Edit menu's Cut, Copy, Paste and Clear act on the
 selected button or field (with the Button or Field tool) or the paint
-selection, as in HyperCard ("Copy Button", "Paste Picture"), and scripts
+selection, as in the classic app ("Copy Button", "Paste Picture"), and scripts
 can use them with `doMenu`. Pasted buttons and fields keep their text and
 hilite. Objects ▸ Bring to Front / Send to Back reorder parts. Undo and
 redo (Ctrl+Z, Ctrl+Shift+Z) cover painting, moving, resizing, creating,
@@ -256,10 +257,10 @@ Edit ▸ Background (Ctrl+B) switches to the background layer.
 checkBox, radioButton, standard, default, oval and popup, with families,
 autoHilite and enabled. A popup's lines are its menu: clicking it shows the
 menu, choosing an item sends `mouseUp`, and `the selectedText of button 1`
-reports the choice. A slider, which HyperCard never had, is a button too:
+reports the choice. A slider, which the classic app never had, is a button too:
 its contents is its value, from `the min` to `the max` in steps of `the
 step`, and dragging it sends `sliderMoved`, then `sliderChanged`. A
-button's icon can be HyperCard's 32×32 black and white, or a picture of
+button's icon can be the classic app's 32×32 black and white, or a picture of
 any size in color, added from a file in Button Info. Field styles: transparent, opaque, rectangle, shadow and scrolling,
 with lockText, dontWrap, showLines, wideMargins, text font, size, style and
 alignment. Locked fields with autoSelect are list fields: a click selects
@@ -273,18 +274,18 @@ them. Clicking grouped text in a locked field makes `the clickText` the
 whole group. Only egui's built-in fonts are available, so Courier and Monaco
 show as one monospaced font and the rest as one sans-serif font.
 
-**HyperCard's text metrics.** Text is drawn in egui's fonts but measured by
-the classic Mac bitmap fonts HyperCard used (Chicago, Geneva, New York,
+**The classic app's text metrics.** Text is drawn in egui's fonts but measured by
+classic bitmap fonts the classic app used (Chicago, Geneva, New York,
 Monaco, Courier, Helvetica, Times, Palatino): each word takes the width it
-had in HyperCard, and each line its height, so fields wrap and scroll as
+had in the classic app, and each line its height, so fields wrap and scroll as
 they did and imported stacks fit their fields. Unknown fonts measure as
-Geneva, as they did on the Mac. Fields use HyperCard's text margins,
+Geneva, as they did on the Mac. Fields use the classic app's text margins,
 `textHeight` and `fixedLineHeight`, and showLines draws its lines on the
 text's baselines. The metrics table in `src/model/metrics/data.rs` was made
 with `tools/font_metrics.py`; it holds numbers only, not the fonts.
 
-**HyperTalk.** Scripts live on buttons, fields, cards, backgrounds and the
-stack. Messages travel the HyperCard message path (part → card → background
+**xTalk.** Scripts live on buttons, fields, cards, backgrounds and the
+stack. Messages travel the classic message path (part → card → background
 → stack → stacks in use → Home) and can be passed on with `pass`.
 `start using stack "Library"` puts a stack's script in the path (it gets a
 `libraryStack` message), `stop using` takes it out (`releaseStack`), and
@@ -293,22 +294,22 @@ stack. Messages travel the HyperCard message path (part → card → background
 Window…) opens a stack in a window of its own. The stack in the front
 window is the current one, and the menus, tools and message box act on it;
 clicking another window's card brings it forward, sending `suspendStack`
-and `resumeStack` as HyperCard did. `the stacks` lists the open stacks, and
+and `resumeStack` as the classic app did. `the stacks` lists the open stacks, and
 Close Stack or `close window` closes one.
 
 Paths are each system's own, except on macOS, where scripts see colon paths
-as in HyperCard (`Disk:Folder:Stack`) and file commands take them back.
+as in the classic app (`Disk:Folder:Stack`) and file commands take them back.
 `the pathSeparator` (a RandomCard addition) answers ":" on macOS, "\" on
 Windows and "/" elsewhere, so a stack can find its own folder anywhere.
 
 - Control flow: `on`/`function` handlers, `if`/`then`/`else` (single-line,
   block and `else if` chains), `repeat` (forever, N times, while, until,
   `with i = a [down] to b`), `next repeat`, `exit repeat`, `exit handler`,
-  `exit to HyperCard`, `return`, `global`, and `pass`.
-- Expressions: full HyperTalk operator precedence, including `&`, `&&`, `div`,
+  `exit to HyperCard`, `return`, `global`, and `pass`. <!-- legacy-compat: script keyword -->
+- Expressions: full xTalk operator precedence, including `&`, `&&`, `div`,
   `mod`, `^`, `contains`, `is in`, `is not in`, `is within`, `is a number`,
   and `there is a card "x"`. Unquoted literals evaluate to their own name, as
-  in HyperCard.
+  in the classic app.
 - Chunks: `char`, `word`, `item` and `line`, with ranges (`char 2 to 5 of`),
   ordinals (`first`, `last`, `middle`, `any`), nesting, and `put` /
   `delete` into chunks.
@@ -324,9 +325,9 @@ Windows and "/" elsewhere, so a stack can find its own folder anywhere.
   bucket fill, a pencil dot, or placing the text tool), and `type` with the
   text tool paints text in `the textFont`, `textSize` and `textStyle`.
   `the brush`, `the lineSize` and `the polySides` work too, and beyond
-  HyperCard, `the spraySize` (pixels across) and `the sprayDensity` (dots
+  the classic app, `the spraySize` (pixels across) and `the sprayDensity` (dots
   at a time).
-- Painting in color, beyond HyperCard: `the penColor` (lines, borders, the
+- Painting in color, beyond the classic app: `the penColor` (lines, borders, the
   pencil and text) and `the brushColor` (the pattern's set bits: brush,
   spray, bucket and filled shapes), as a name (`red`), `255,128,0`, or hex
   as on the web, `#FF8000` or `#F80`. The palette's line and fill color squares are the same two
@@ -373,7 +374,7 @@ Windows and "/" elsewhere, so a stack can find its own folder anywhere.
   the field being typed in; keyDown, returnKey, enterKey, tabKey,
   functionKey and commandKeyDown go to the card when no field is active.
   A handler that doesn't `pass` the message stops the key. Unhandled keys
-  do what HyperCard did: Tab moves to the next unlocked field and selects
+  do what the classic app did: Tab moves to the next unlocked field and selects
   its text, Return on the last line of an autoTab field moves on, typing
   with no field active goes into the message box (blind typing) and Return
   runs it, command keys do their menu items, and F1 undoes. Shift+Return
@@ -386,16 +387,16 @@ Windows and "/" elsewhere, so a stack can find its own folder anywhere.
 - Sound: `play "boing"`, `play "harpsichord" tempo 200 "c4e d e f g a b c5h"`
   (notes as a–g or MIDI numbers with `#`/`b`, octave, `w h q e s t x`
   durations, dots and triplets), `play stop`, `the sound`, `dial` (touch
-  tones) and `beep`. Sounds come from the stack; HyperCard's harpsichord,
+  tones) and `beep`. Sounds come from the stack; the classic app's harpsichord,
   flute and boing fall back to voices RandomCard synthesizes itself.
-- Movies, with HyperCard 2.4's syntax: `Movie "Intro", "windoid", "card"`,
+- Movies, with classic 2.4's syntax: `Movie "Intro", "windoid", "card"`,
   `play movie 1`, `set the rate of movie 1 to -1`, `the currTime of movie
   1`, QuickTime's controller and messages like `movieRateChanged`. Today's
   formats play (MOV, MP4, M4V, MPEG), through the system's own player:
   AVFoundation on macOS and GStreamer on Linux; Windows is still to come.
   macOS doesn't play MPEG-1 or MPEG-2. Classic QuickTime movies play
   where the system can decode them. Dropping a movie file on the card opens it, with or
-  without an extension. See [HYPERTALK.md](HYPERTALK.md#movies).
+  without an extension. See [SCRIPTING.md](SCRIPTING.md#movies).
 - Visual effects: dissolve, wipe, scroll/push, barn door, iris, zoom,
   venetian blinds and checkerboard, at four speeds.
 
@@ -410,10 +411,10 @@ cards`, `print 5 cards`, `print card from 0,0 to 512,300` (part of a card),
 to gather cards into one document. RandomCard makes a PDF and opens it in
 your PDF viewer to print or save. Cards print at full size, two to a US
 Letter page, pictures as crisp 1-bit images and buttons and fields as
-vector shapes, with text laid out by HyperCard's metrics in the standard
+vector shapes, with text laid out by the classic app's metrics in the standard
 PDF fonts (Helvetica, Times, Courier).
 
-**The debugger.** As in HyperCard, a script stops at a checkpoint and shows
+**The debugger.** As in the classic app, a script stops at a checkpoint and shows
 where it is in the script editor, with the line highlighted. Set a
 checkpoint by clicking a line number in the editor or with Ctrl+D, or put
 `debug checkpoint` in a script. While stopped: Step (F10) runs to the next
@@ -449,7 +450,7 @@ screen, so hiding the menu bar (Ctrl+Space) doesn't apply.
 | Ctrl+Space | Hide or show the menu bar |
 | Ctrl+S, Ctrl+O, Ctrl+Q | Save, open, quit |
 | Ctrl+P | Print card |
-| Ctrl+F | Find (in the message box, as HyperCard did) |
+| Ctrl+F | Find (in the message box, as the classic app did) |
 | Ctrl+R | Recent cards |
 
 ## Layout
@@ -460,7 +461,7 @@ src/
                Home stacks
   import/      reader for original HyperCard stack files, WOBA decoder, AddColor
   print/       printing cards and text as PDF
-  hypertalk/   lexer, parser, syntax tree, values and chunk expressions
+  lang/        lexer, parser, syntax tree, values and chunk expressions
   runtime/     shared World state, interpreter, objects and properties,
                commands, functions, dates; end-to-end tests
   paint/       raster painting: patterns, brushes, shapes, fills, selections,
@@ -474,24 +475,24 @@ src/
 
 ## Not (yet) implemented
 
-The main gaps are multiple open stacks and XCMDs. [ROADMAP.md](ROADMAP.md) lists the remaining work by area, with
+The main gaps are multiple open stacks and external commands. [ROADMAP.md](ROADMAP.md) lists the remaining work by area, with
 notes on how to approach each piece and a suggested order. [COMPLIANCE.md](COMPLIANCE.md)
-audits RandomCard against HyperCard 2.4.1, item by item, and
-[XCMDS.md](XCMDS.md) lists the old externals and what became of each.
+audits RandomCard against classic 2.4.1, item by item, and
+[EXTERNALS.md](EXTERNALS.md) lists the old externals and what became of each.
 
 ## References
 
-The language and object model follow HyperCard 2.x. These were used as
+The language and object model follow classic 2.x. These were used as
 guides:
 
 - [WyldCard](https://github.com/defano/wyldcard), Matt DeFano's Java
-  reproduction of HyperCard. Its ANTLR HyperTalk grammar was the main
-  reference for syntax, and HyperCard's 216 built-in icons
-  (`src/import/hypercard_icons.txt`) come from its copies of them.
-- [ViperCard](https://github.com/moltenform/vipercard), a HyperCard
+  reproduction of the classic app. Its ANTLR xTalk grammar was the main
+  reference for syntax, and the classic app's 216 built-in icons
+  (`src/import/builtin_icons.txt`) come from its copies of them.
+- [ViperCard](https://github.com/moltenform/vipercard), a classic app
   reimplementation for the web.
 - [HyperCardPreview](https://github.com/PierreLorenzi/HyperCardPreview),
-  Pierre Lorenzi's HyperCard stack viewer (MIT License). The stack importer
+  Pierre Lorenzi's classic stack viewer (MIT License). The stack importer
   follows its file-format layouts and WyldCard's, `src/import/woba.rs`
   is a port of its WOBA bitmap decoder, and icon masks follow its method.
 - [Vector Playing Cards](https://code.google.com/archive/p/vector-playing-cards/)
@@ -512,5 +513,19 @@ them alongside this code.
 
 ## License
 
-MIT; see [LICENSE](LICENSE). HyperCard and HyperTalk are trademarks of Apple
-Inc. This project is not affiliated with Apple.
+MIT; see [LICENSE](LICENSE).
+
+## Compatibility and trademarks
+
+<!-- legacy-terms:allow -->
+RandomCard is compatible with stacks made with Apple's HyperCard (1987 to
+1998) and runs their HyperTalk scripts. Elsewhere in this repository these
+are called classic stacks, the classic app, and xTalk (the generic name for
+HyperTalk-style languages); "classic 2.4.1" means HyperCard 2.4.1, and an
+external command or function is an XCMD or XFCN. HyperCard, HyperTalk and
+Macintosh are trademarks of Apple Inc. This project is not affiliated with
+Apple. See LICENSE for the built-in icons. Names that old stacks
+and files depend on (such as `exit to HyperCard` and the `STAK` file
+signature) are kept in the code and marked `legacy-compat`;
+`tools/legacy_terms.py check` keeps every other reference out.
+<!-- /legacy-terms:allow -->

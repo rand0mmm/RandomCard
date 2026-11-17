@@ -1,5 +1,5 @@
 //! Printing: cards and text made into PDF documents, which open in the
-//! system's viewer to print or save. HyperCard printed to the printer
+//! system's viewer to print or save. The classic app printed to the printer
 //! directly; a PDF does the same job on any system, with no printer setup.
 
 mod card;

@@ -1,5 +1,5 @@
-"""Build an HFS disk image of the stacks on Apple's Developer CDs, for opening
-them in the real HyperCard under an emulator, beside RandomCard.
+"""Build an HFS disk image of the stacks on the vendor's Developer CDs, for opening
+them in the original app under an emulator, beside RandomCard.
 
 usage: stacks_disk.py DEVCDS_DIR OUT.dsk
 

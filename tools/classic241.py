@@ -1,21 +1,21 @@
-"""HyperCard 2.4.1's own stacks as tests: list them for the click_every_button
-test, and turn its results into HYPERCARD_241_STACKS.md and the list of clean
-stacks the hypercard_241_stacks_stay_clean test keeps clean.
+"""Classic 2.4.1's own stacks as tests: list them for the click_every_button
+test, and turn its results into CLASSIC_241_STACKS.md and the list of clean
+stacks the classic_241_stacks_stay_clean test keeps clean.
 
-The stacks are the ones on HyperCard 2.4.1's installation disk, copied to
+The stacks are the ones on classic 2.4.1's installation disk, copied to
 examples/apple/hypercard_241_stacks with their resource forks in .rsrc/
-(Apple's, so not in git).
+(the vendor's, so not in git).
 
 usage:
-  hc241.py list STACKS_DIR > LEVEL4.list
+  classic241.py list STACKS_DIR > LEVEL4.list
       Every file there but the forks and Finder info, as absolute paths.
-  hc241.py report STACKS_DIR LEVEL4.tsv
-      Write HYPERCARD_241_STACKS.md and tests/hc241_clean.txt in the repo.
+  classic241.py report STACKS_DIR LEVEL4.tsv
+      Write CLASSIC_241_STACKS.md and tests/classic241_clean.txt in the repo.
 
 A full run, from the repo:
-  python3 tools/hc241.py list examples/apple/hypercard_241_stacks > /tmp/hc241/LEVEL4.list
-  RANDOMCARD_LEVEL4=/tmp/hc241/LEVEL4.list cargo test --release click_every_button -- --ignored
-  python3 tools/hc241.py report examples/apple/hypercard_241_stacks /tmp/hc241/LEVEL4.tsv
+  python3 tools/classic241.py list examples/apple/hypercard_241_stacks > /tmp/classic241/LEVEL4.list
+  RANDOMCARD_LEVEL4=/tmp/classic241/LEVEL4.list cargo test --release click_every_button -- --ignored
+  python3 tools/classic241.py report examples/apple/hypercard_241_stacks /tmp/classic241/LEVEL4.tsv
 """
 import csv
 import datetime
@@ -26,7 +26,7 @@ REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 
 # Clean stacks too slow for every `cargo test` (none now: with no one
 # watching, effects and waits don't pause): marked slow in the list, so the
-# regular `cargo test` leaves them to RANDOMCARD_HC241_SLOW=1 and full runs.
+# regular `cargo test` leaves them to RANDOMCARD_CLASSIC241_SLOW=1 and full runs.
 SLOW = set()
 
 
@@ -52,24 +52,24 @@ def report(top, tsv):
     others = [r for r in rows if r not in clean and r not in errors]
     today = datetime.date.today().isoformat()
     out = [
-        "# HyperCard 2.4.1's own stacks",
+        "# Classic 2.4.1's own stacks",
         '',
-        'The stacks that came with HyperCard 2.4.1, from its installation disk:',
-        "Apple's own, for the version RandomCard follows, using its newest features.",
-        "They live in `examples/apple/hypercard_241_stacks` (Apple's, so not in git).",
+        'The stacks that came with classic 2.4.1, from its installation disk:',
+        "The vendor's own, for the version RandomCard follows, using its newest features.",
+        "They live in `examples/apple/hypercard_241_stacks` (the vendor's, so not in git).",
         '',
         'Each stack is opened, and every scripted button on every card clicked, by',
-        "the `click_every_button` test; `tools/hc241.py` lists the stacks and writes",
+        "the `click_every_button` test; `tools/classic241.py` lists the stacks and writes",
         'this page from the results. A clean stack gets no script error on any',
         'click. "Stopped" counts clicks that ran into the two-second limit, usually',
         "a timed demo or an animation, which aren't errors.",
         '',
-        'Clean stacks are kept clean: `tests/hc241_clean.txt` lists them, and the',
-        '`hypercard_241_stacks_stay_clean` test, part of `cargo test` wherever the',
+        'Clean stacks are kept clean: `tests/classic241_clean.txt` lists them, and the',
+        '`classic_241_stacks_stay_clean` test, part of `cargo test` wherever the',
         'stacks are, fails if one of them gets an error; visual effects and `wait`',
         "don't pause, with no one watching, so all of them take seconds. A stack",
         'joins the list when this page is written again after a fix. What breaks',
-        "the others is in the roadmap's \"HyperCard 2.4.1's own stacks\" section.",
+        "The others is in the roadmap's \"classic 2.4.1's own stacks\" section.",
         '',
         f'**{len(clean)} of {len(clean) + len(errors)} stacks are clean** ({today}).',
         '',
@@ -85,12 +85,12 @@ def report(top, tsv):
         out += ['', '## Not stacks', '', "Files beside the stacks: pictures, fonts and movies.", '']
         out += [f"- {r['name']}" for r in others]
     out.append('')
-    open(os.path.join(REPO, 'HYPERCARD_241_STACKS.md'), 'w', encoding='utf-8').write('\n'.join(out))
-    lines = ['# HyperCard 2.4.1 stacks that click clean, relative to examples/apple/hypercard_241_stacks.',
-             '# Written by tools/hc241.py; the hypercard_241_stacks_stay_clean test keeps them clean.',
-             '# "slow:" ones run only with RANDOMCARD_HC241_SLOW=1.']
+    open(os.path.join(REPO, 'CLASSIC_241_STACKS.md'), 'w', encoding='utf-8').write('\n'.join(out))
+    lines = ['# classic 2.4.1 stacks that click clean, relative to examples/apple/hypercard_241_stacks.',
+             '# Written by tools/classic241.py; the classic_241_stacks_stay_clean test keeps them clean.',
+             '# "slow:" ones run only with RANDOMCARD_CLASSIC241_SLOW=1.']
     lines += [('slow: ' if r['name'] in SLOW else '') + r['name'] for r in clean]
-    open(os.path.join(REPO, 'tests', 'hc241_clean.txt'), 'w', encoding='utf-8').write('\n'.join(lines) + '\n')
+    open(os.path.join(REPO, 'tests', 'classic241_clean.txt'), 'w', encoding='utf-8').write('\n'.join(lines) + '\n')
     print(f'{len(clean)} clean, {len(errors)} with errors, {len(others)} not stacks')
 
 

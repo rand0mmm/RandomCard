@@ -1,7 +1,7 @@
-"""Build a Mini vMac setup for running the real HyperCard beside RandomCard.
+"""Build a Mini vMac setup for running the original app beside RandomCard.
 
-It makes one hard disk image holding System 6.0.8, HyperCard 1.2.5 (with its
-Home stack), HyperCard Player 2.1 and folders of Apple's stacks, all taken
+It makes one hard disk image holding System 6.0.8, classic 1.2.5 (with its
+Home stack), the classic player 2.1 and folders of the vendor's stacks, all taken
 from the Developer CDs that tools/devcds.py unpacks, and puts it in a folder
 with Mini vMac and its ROM. Mini vMac emulates a Mac Plus: 512x342, black
 and white, which is what these stacks were made for.
@@ -23,12 +23,12 @@ import machfs
 
 # (disc folder, path on the disc, name on the emulated disk)
 CONTENTS = [
-    ('ADC Developer CD (Volume 03,5 - "WWDC 1990")_mdf', 'Applications/HyperCard 1.2.5', 'HyperCard 1.2.5'),
+    ('ADC Developer CD (Volume 03,5 - "WWDC 1990")_mdf', 'Applications/HyperCard 1.2.5', 'HyperCard 1.2.5'), # legacy-compat: folder and file names on the disc
     ('ADC Developer CD (1993-03) ("Other People\'s Memory")_iso',
-     'Development Platforms/HyperCard Related/HyperCard Player 2.1', 'HyperCard Player 2.1'),
+     'Development Platforms/HyperCard Related/HyperCard Player 2.1', 'HyperCard Player 2.1'), # legacy-compat: folder and file names on the disc
     ('ADC Developer CD (Volume 04 - "Discy Business")_mdf',
      'Jul 90 Developer Essentials/SpInside:TNStack:Q&A:Human I:F', 'Apple Stacks 1990'),
-    ('ADC Developer CD (Volume 04 - "Discy Business")_mdf', 'Info Island/HC 2.0 training stacks', 'HC 2.0 Training'),
+    ('ADC Developer CD (Volume 04 - "Discy Business")_mdf', 'Info Island/HC 2.0 training stacks', 'HC 2.0 Training'), # legacy-compat: folder names on the disc
 ]
 SYSTEM = ('ADC Developer CD (1993-03) ("Other People\'s Memory")_iso', 'System Software/U.S. 6.0.8/System Tools.image')
 
@@ -92,8 +92,8 @@ def load_folder(disc_dir, rel, info, stacks):
         elif sub in stacks or name in stacks:
             f.type, f.creator = b'STAK', b'WILD'
         elif b'CODE' in resource_types(f.rsrc):
-            # An application; HyperCard's own creator is WILD.
-            f.type, f.creator = b'APPL', b'WILD' if 'hypercard' in name.lower() else b'????'
+            # An application; the classic app's own creator is WILD.
+            f.type, f.creator = b'APPL', b'WILD' if 'hypercard' in name.lower() else b'????' # legacy-compat: finds the app's file by its name
         else:
             f.type, f.creator = b'????', b'????'
         folder[name.replace(':', '/')] = f
@@ -112,13 +112,13 @@ def main():
     system.read(disk_copy_image(os.path.join(devcds, *SYSTEM)))
 
     vol = machfs.Volume()
-    vol.name = 'HyperCard HD'
+    vol.name = 'HyperCard HD' # legacy-compat: volume name existing emulator setups use
     vol['System Folder'] = system['System Folder']
     for disc, rel, name in CONTENTS:
         disc_dir = os.path.join(devcds, disc)
         info, stacks = finder_info(disc_dir)
         folder = load_folder(disc_dir, rel, info, stacks)
-        # HyperCard looks for Home beside itself; some discs kept it a folder down.
+        # The classic app looks for Home beside itself; some discs kept it a folder down.
         if 'Home' not in folder:
             for sub in [f for f in folder.values() if isinstance(f, machfs.Folder)]:
                 if 'Home' in sub:
@@ -129,13 +129,13 @@ def main():
 
     size = (size_of(vol) * 3 // 2 // (1024 * 1024) + 16) * 1024 * 1024
     os.makedirs(out, exist_ok=True)
-    disk = os.path.join(out, 'HyperCard HD.dsk')
+    disk = os.path.join(out, 'HyperCard HD.dsk') # legacy-compat: disk image name existing emulator setups use
     with open(disk, 'wb') as f:
         f.write(vol.write(size=size, bootable=True))
     for name in ('Mini vMac', 'vMac.ROM'):
         shutil.copy2(os.path.join(minivmac, name), os.path.join(out, name))
     print(f'{disk}: {size // (1024 * 1024)} MB')
-    print(f'run: cd "{out}" && ./"Mini vMac" "HyperCard HD.dsk"')
+    print(f'run: cd "{out}" && ./"Mini vMac" "HyperCard HD.dsk"') # legacy-compat: disk image name existing emulator setups use
 
 
 main()

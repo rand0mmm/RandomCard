@@ -1,7 +1,7 @@
-//! HyperCard's text metrics: the line heights and character widths of the
-//! classic Macintosh bitmap fonts. RandomCard draws text with its own fonts
+//! The classic app's text metrics: the line heights and character widths of the
+//! classic bitmap fonts. RandomCard draws text with its own fonts
 //! but spaces it by these, so a field holds the same words on each line and
-//! the same number of lines as it did in HyperCard.
+//! the same number of lines as it did in the classic app.
 
 mod data;
 
@@ -159,7 +159,7 @@ impl Metrics {
     }
 }
 
-/// HyperCard's automatic textHeight for a text size.
+/// The classic app's automatic textHeight for a text size.
 pub fn default_text_height(size: u32) -> u32 {
     (size * 4).div_ceil(3)
 }
@@ -186,7 +186,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn hypercard_metrics() {
+    fn classic_metrics() {
         let g = metrics("Geneva", 12, "plain");
         assert_eq!((g.ascent, g.descent, g.leading, g.line_height()), (12, 3, 1, 16));
         assert_eq!(g.width(' '), 4.0);

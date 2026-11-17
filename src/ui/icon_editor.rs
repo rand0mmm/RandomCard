@@ -1,5 +1,5 @@
 //! The icon editor (Edit ▸ Icon…): a stack's icons magnified, to draw
-//! pixel by pixel. HyperCard's icons were 32×32 and black and white;
+//! pixel by pixel. The classic app's icons were 32×32 and black and white;
 //! RandomCard's are any size and color, so this paints with the Line
 //! color, and a right-click makes a pixel clear.
 

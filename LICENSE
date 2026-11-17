@@ -22,7 +22,7 @@ SOFTWARE.
 
 HyperCard, HyperTalk and Macintosh are trademarks of Apple. RandomCard is not
 affiliated with Apple. It contains no Apple software. The one piece of Apple
-artwork is HyperCard's built-in button icons (src/import/hypercard_icons.txt),
+artwork is HyperCard's built-in button icons (src/import/builtin_icons.txt),
 which stacks expect to find, taken from WyldCard's copies of them; they remain
 Apple's, and the MIT license above doesn't cover them. Stacks you import keep
 their own authors' copyrights.

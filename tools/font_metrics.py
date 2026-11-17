@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate src/model/metrics/data.rs from classic Mac OS bitmap fonts.
+"""Generate src/model/metrics/data.rs from the classic OS bitmap fonts.
 
 Usage: font_metrics.py DIR > src/model/metrics/data.rs
 
@@ -78,7 +78,7 @@ for fam in FAMILIES:
         if style == 0 and size > 0 and rid in fonts:
             out[(fam, size)] = font_metrics(fonts[rid])
 
-print("// Generated from the classic Mac OS bitmap fonts' NFNT and FOND resources: only")
+print("// Generated from the classic OS bitmap fonts' NFNT and FOND resources: only")
 print("// their metrics, not the fonts. Widths are for MacRoman characters 32 to 255.")
 print()
 print("use super::{FamilyStyles, FontMetrics};")

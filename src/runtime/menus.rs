@@ -69,17 +69,17 @@ pub fn item_key(name: &str) -> String {
     name.trim().trim_end_matches('…').trim_end_matches("...").trim().to_ascii_lowercase()
 }
 
-/// HyperCard 2's menu items that RandomCard has nothing behind yet, never
+/// Classic 2's menu items that RandomCard has nothing behind yet, never
 /// needs, or shows elsewhere (Options' Rotate, Slant, Distort and
 /// Perspective are on the Tools palette). Scripts can still choose,
-/// enable, disable and delete them, as Apple's stacks do, but the menus don't
+/// enable, disable and delete them, as the vendor's stacks do, but the menus don't
 /// show them.
 pub const SCRIPT_ONLY_ITEMS: &[&str] = &[
     "page setup", "print report", "text style", "icon", "audio", "help", "scroll", "next window",
     "rotate", "slant", "distort", "perspective",
 ];
 
-/// RandomCard's standard menu bar, in HyperCard's order.
+/// RandomCard's standard menu bar, in the classic app's order.
 pub fn standard_menus() -> Vec<Menu> {
     let fonts: Vec<&str> = styles::FONTS.to_vec();
     let mut style: Vec<String> = vec!["Plain".into()];
@@ -88,7 +88,7 @@ pub fn standard_menus() -> Vec<Menu> {
     style.extend(styles::SIZES.iter().map(|s| format!("{s} Point")));
     style.extend(["-".into(), "Text Color…".into()]);
     let style: Vec<&str> = style.iter().map(String::as_str).collect();
-    // HyperCard's Paint menu, in its order. RandomCard shows these and the
+    // The classic app's Paint menu, in its order. RandomCard shows these and the
     // Options menu on the Tools palette instead of in the menu bar; they're
     // kept here for scripts' doMenu, and for stacks that change them.
     let paint = [

@@ -1,6 +1,6 @@
 //! Paint layers. A picture holds any color with transparency, and card and
 //! background layers need "no paint here" (clear) so lower layers show
-//! through. Most pictures are HyperCard's black and white, so a picture
+//! through. Most pictures are the classic app's black and white, so a picture
 //! keeps one byte a pixel until a color goes into it, and is saved in the
 //! same compact form; a picture with color is saved as a PNG.
 

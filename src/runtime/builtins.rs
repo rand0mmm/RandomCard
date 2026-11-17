@@ -1,7 +1,7 @@
-//! Built-in HyperTalk functions: `the date`, `random(6)`, `the mouseLoc`, ...
+//! Built-in xTalk functions: `the date`, `random(6)`, `the mouseLoc`, ...
 
-use crate::hypertalk::ast::NameLength;
-use crate::hypertalk::value::*;
+use crate::lang::ast::NameLength;
+use crate::lang::value::*;
 
 use super::dates;
 use super::world::{FieldRange, World, line_number};
@@ -52,7 +52,7 @@ impl Interp {
             "ln1" => self.fmt(num(0)?.ln_1p()),
             "log2" => self.fmt(num(0)?.log2()),
             "random" => {
-                // HyperCard gives 1 for 0 or less.
+                // The classic app gives 1 for 0 or less.
                 let n = to_int(&arg(0))?.max(1);
                 rand::random_range(1..=n).to_string()
             }
@@ -82,7 +82,7 @@ impl Interp {
             // Text
             "length" => arg(0).chars().count().to_string(),
             // textWidth(text, font, size, style): its width in pixels, by
-            // classic Mac metrics (Geneva 12 plain unless given).
+            // classic metrics (Geneva 12 plain unless given).
             "textwidth" => {
                 let font = if arg(1).trim().is_empty() { "Geneva".to_string() } else { arg(1) };
                 let size = if arg(2).trim().is_empty() { 12 } else { to_int(&arg(2))?.clamp(1, 256) as u32 };
@@ -221,7 +221,7 @@ impl Interp {
                     .map(|t| t.name.clone())
                     .collect();
                 list.extend(w.movies.iter().rev().map(|m| m.name.clone()));
-                // Card windows go by their stacks' names, as in HyperCard,
+                // Card windows go by their stacks' names, as in the classic app,
                 // the current one first.
                 list.extend(w.open_stacks().map(|s| s.name.clone()));
                 list.extend(["Message", "Tools", "Patterns", "Scroll"].map(String::from));
@@ -256,7 +256,7 @@ impl Interp {
                         }
                     });
                 }
-                // HyperCard's Scroll palette, never shown in RandomCard.
+                // The classic app's Scroll palette, never shown in RandomCard.
                 if arg(1).trim().eq_ignore_ascii_case("scroll") && arg(0).eq_ignore_ascii_case("visible") {
                     return Ok("false".into());
                 }
@@ -304,7 +304,7 @@ impl Interp {
             }
             "systemversion" | "osversion" => "1.0".into(),
             // The separator in the paths scripts see: ":" on macOS, as in
-            // HyperCard, "\" on Windows, "/" elsewhere.
+            // the classic app, "\" on Windows, "/" elsewhere.
             "pathseparator" => super::paths::SEPARATOR.into(),
             "osname" => std::env::consts::OS.into(),
             "diskspace" | "heapspace" => "1000000000".into(),

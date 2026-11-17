@@ -1,4 +1,4 @@
-//! In HyperTalk every value is text; numbers and booleans are just text that
+//! In xTalk every value is text; numbers and booleans are just text that
 //! happens to look like a number or "true"/"false".
 
 pub fn parse_number(s: &str) -> Option<f64> {
@@ -6,7 +6,7 @@ pub fn parse_number(s: &str) -> Option<f64> {
     if t.is_empty() {
         return None;
     }
-    // Reject things Rust accepts but HyperTalk doesn't, like "inf" or "nan".
+    // Reject things Rust accepts but xTalk doesn't, like "inf" or "nan".
     if !t.chars().all(|c| c.is_ascii_digit() || matches!(c, '.' | '-' | '+' | 'e' | 'E')) {
         return None;
     }
@@ -30,7 +30,7 @@ pub fn bool_str(b: bool) -> String {
     if b { "true".into() } else { "false".into() }
 }
 
-/// Format a number using a HyperTalk numberFormat such as "0.######".
+/// Format a number using an xTalk numberFormat such as "0.######".
 pub fn format_number(n: f64, number_format: &str) -> String {
     if n.is_nan() {
         return "NAN".into();
@@ -82,7 +82,7 @@ pub fn format_number(n: f64, number_format: &str) -> String {
 }
 
 /// Split into (start, end) byte ranges for each word: runs of non-whitespace.
-/// As in HyperCard, a word that starts with a quotation mark runs to the
+/// As in the classic app, a word that starts with a quotation mark runs to the
 /// closing one, spaces and all: word 2 of `card "My Card"` is `"My Card"`,
 /// which `value of word 2 of the long name` relies on.
 pub fn word_ranges(s: &str) -> Vec<(usize, usize)> {
@@ -144,13 +144,13 @@ pub fn count_chunks(s: &str, kind: super::ast::ChunkKind, item_delim: &str) -> u
     }
 }
 
-/// Round half to even, as HyperCard (via SANE) does.
+/// Round half to even, as the classic app (via SANE) does.
 pub fn round_half_even(n: f64) -> f64 {
     let r = n.round();
     if (n - n.trunc()).abs() == 0.5 && r % 2.0 != 0.0 { r - n.signum() } else { r }
 }
 
-/// Compare two values the way HyperTalk does: numerically if both are numbers,
+/// Compare two values the way xTalk does: numerically if both are numbers,
 /// otherwise as case-insensitive text.
 pub fn compare(a: &str, b: &str) -> std::cmp::Ordering {
     match (parse_number(a), parse_number(b)) {

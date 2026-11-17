@@ -4,7 +4,7 @@ version = "0.6.0"
 edition = "2024"
 license = "MIT"
 authors = ["jwindberg"]
-description = "A recreation of Apple's HyperCard: stacks of cards, painting, and HyperTalk"
+description = "A card-stack authoring environment: stacks of cards, painting, xTalk scripts, and import of classic stacks"
 repository = "https://github.com/jwindberg/RandomCard"
 # examples/ holds stacks, not Cargo examples.
 autoexamples = false

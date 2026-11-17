@@ -2,8 +2,8 @@
 //! `close printing`. Documents are made as PDFs and opened in the system's
 //! viewer, which prints them.
 
-use crate::hypertalk::ast::{Expr, ObjSpec, PrintWhat};
-use crate::hypertalk::value::parse_point;
+use crate::lang::ast::{Expr, ObjSpec, PrintWhat};
+use crate::lang::value::parse_point;
 use crate::model::{Id, PartKind, Rect};
 use crate::print;
 

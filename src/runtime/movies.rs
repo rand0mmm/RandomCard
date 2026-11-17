@@ -1,13 +1,13 @@
-//! Movies, as HyperCard 2.4 played them: `Movie "Intro", "windoid", "card"`
+//! Movies, as classic 2.4 played them: `Movie "Intro", "windoid", "card"`
 //! opens a movie file in a movie window, which scripts reach as `movie 1`,
 //! `movie "Intro"` or `window "Intro"`, play and pause (`play movie 1`,
 //! `send "rewind" to movie 1`), and control with properties (`set the rate
-//! of movie 1 to 2`). HyperCard did this with Apple's Movie XCMD and
+//! of movie 1 to 2`). The classic app did this with the vendor's Movie external command and
 //! QuickTime; RandomCard does it itself, in today's movie formats (see
 //! `crate::video`). Movie windows are drawn in the card window, where
-//! scripts place them in card coordinates, as HyperCard placed them.
+//! scripts place them in card coordinates, as the classic app placed them.
 //!
-//! Times are HyperCard's: "SystemTime" is hours, minutes, seconds and ticks
+//! Times are the classic app's: "SystemTime" is hours, minutes, seconds and ticks
 //! (sixtieths), written right to left, so "2,30" is two and a half seconds;
 //! "MovieTime" is a count of the movie's time units, 600 a second.
 
@@ -15,8 +15,8 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use crate::hypertalk::ast::Ordinal;
-use crate::hypertalk::value::{bool_str, format_number, parse_point, parse_rect};
+use crate::lang::ast::Ordinal;
+use crate::lang::value::{bool_str, format_number, parse_point, parse_rect};
 use crate::model::Rect;
 use crate::video::Player;
 
@@ -229,7 +229,7 @@ impl MovieWindow {
     }
 }
 
-/// Seconds as HyperCard's "SystemTime": hours, minutes, seconds, ticks,
+/// Seconds as the classic app's "SystemTime": hours, minutes, seconds, ticks,
 /// leaving out the leading parts that are 0.
 pub fn system_time(secs: f64) -> String {
     let mut ticks = (secs.max(0.0) * 60.0 * 100.0).round() / 100.0;
@@ -354,7 +354,7 @@ impl World {
         if let Some(i) = self.movies.iter().position(|m| m.name.eq_ignore_ascii_case(name)) {
             return Some((i, true));
         }
-        // A file's name or path, as HyperCard matched the movie property.
+        // A file's name or path, as the classic app matched the movie property.
         let file = super::paths::native(name);
         self.movies
             .iter()
@@ -413,7 +413,7 @@ impl Interp {
     }
 
     /// The Movie command: `Movie file, style, location, visible, layer`.
-    /// Errors go in the result, as the Movie XCMD's did.
+    /// Errors go in the result, as the Movie external command's did.
     pub(super) fn open_movie(&mut self, args: &[String]) -> R<()> {
         let arg = |i: usize| args.get(i).map(|s| s.trim().to_string()).unwrap_or_default();
         self.result.clear();
@@ -510,7 +510,7 @@ impl Interp {
         let index = match how {
             "id" => which.trim().parse::<u32>().ok().and_then(|id| w.movies.iter().position(|m| m.id == id)),
             "ord" => {
-                let n = match crate::hypertalk::parser::ordinal_of(which) {
+                let n = match crate::lang::parser::ordinal_of(which) {
                     Some(Ordinal::Nth(n)) => n as usize,
                     Some(Ordinal::Last) => count,
                     Some(Ordinal::Middle) => count / 2 + 1,
@@ -743,7 +743,7 @@ impl Interp {
         Ok(())
     }
 
-    /// A movie file dropped on the card window, opened as HyperCard 2.4
+    /// A movie file dropped on the card window, opened as classic 2.4
     /// opened one: a plain window near the card's corner. If it can't be
     /// played, an alert says why.
     pub(super) fn open_dropped_movie(&mut self, path: &std::path::Path) -> R<()> {
@@ -770,7 +770,7 @@ impl Interp {
     /// movieInfo(file): a movie file's rect, volume, rate, duration (as
     /// SystemTime, then MovieTime), time scale, and preview and poster
     /// times, a line each. `movieInfo(".")` is the version of the movie
-    /// player, QuickTime's in HyperCard.
+    /// player, QuickTime's in the classic app.
     pub(super) fn movie_info(&mut self, file: &str) -> String {
         if file.trim() == "." {
             return "3.0".into();

@@ -1,8 +1,8 @@
 //! Popup buttons' menus. Clicking a popup with the Browse tool shows its
 //! lines as a menu, placed so the chosen item sits over the button, as the
-//! Macintosh placed popup menus. Choosing an item sets the popup's selected
+//! the classic computer placed popup menus. Choosing an item sets the popup's selected
 //! line, then sends mouseUp. A line starting with "-" is a divider, and one
-//! starting with "(" is disabled, as in HyperCard's menus.
+//! starting with "(" is disabled, as in the classic app's menus.
 
 use eframe::egui::{self, Align, Layout, PopupAnchor, Pos2, RectAlign};
 
@@ -37,7 +37,7 @@ impl App {
         let above = row * menu.selected.saturating_sub(1) as f32;
         let pos = Pos2::new(menu.at.left(), (menu.at.top() - above).max(0.0));
         // As wide as the popup's box, or wider to fit its longest item, as
-        // the Macintosh drew popup menus; a narrow box doesn't squeeze them.
+        // the classic computer drew popup menus; a narrow box doesn't squeeze them.
         let width = {
             let style = ctx.global_style();
             let font = egui::TextStyle::Button.resolve(&style);

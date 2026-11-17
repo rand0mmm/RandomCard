@@ -1,6 +1,6 @@
-# HyperCard 2.4.1 stacks that click clean, relative to examples/apple/hypercard_241_stacks.
-# Written by tools/hc241.py; the hypercard_241_stacks_stay_clean test keeps them clean.
-# "slow:" ones run only with RANDOMCARD_HC241_SLOW=1.
+# Classic 2.4.1 stacks that click clean, relative to examples/apple/hypercard_241_stacks.
+# Written by tools/classic241.py; the classic_241_stacks_stay_clean test keeps them clean.
+# "slow:" ones run only with RANDOMCARD_CLASSIC241_SLOW=1.
 About HyperCard...
 AppleScript Stacks/Language at a Glance
 Color Tools

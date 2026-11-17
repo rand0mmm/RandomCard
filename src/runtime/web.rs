@@ -1,4 +1,4 @@
-//! HyperTalk's side of the web (the library is `crate::web`):
+//! xTalk's side of the web (the library is `crate::web`):
 //!
 //! - `put url "https://…" into x` (and `get url …`) fetches a page. `the
 //!   result` is empty when it worked; otherwise it's the HTTP status
@@ -106,7 +106,7 @@ impl Interp {
                 Ok(r) => break r,
                 Err(mpsc::RecvTimeoutError::Timeout) => {
                     if self.abort.load(Ordering::SeqCst) {
-                        return Err(Ctl::ExitToHyperCard);
+                        return Err(Ctl::ExitToHost);
                     }
                 }
                 Err(mpsc::RecvTimeoutError::Disconnected) => break Err("The request stopped".into()),

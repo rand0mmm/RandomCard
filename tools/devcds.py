@@ -1,7 +1,7 @@
-"""Fetch Apple's Developer CDs from the Internet Archive and unpack each one's
+"""Fetch the vendor's Developer CDs from the Internet Archive and unpack each one's
 HFS volume, keeping resource forks as NAME.rsrc beside each file.
 
-These are the stacks RandomCard is tested against: hundreds of Apple's own,
+These are the stacks RandomCard is tested against: hundreds of the vendor's own,
 with their icons, sounds and pictures. Each disc goes in its own folder, with
 a STACKS.txt listing its stacks; discs already unpacked are skipped. Put them
 under examples/apple/devcds/, which git ignores.
@@ -25,7 +25,7 @@ import urllib.request
 
 import machfs
 
-ITEM = 'Apple_Developer_Discs_1989-2009'
+ITEM = 'Apple_Developer_Discs_1989-2009' # legacy-compat: the Internet Archive item id
 YEARS = ('1989/', '1990/', '1991/', '1992/', '1993/', '1994/')
 SECTOR = 2048
 
@@ -71,7 +71,7 @@ def hfs_volumes(data):
                 break
             start, length = struct.unpack('>II', e[8:16])
             kind = e[48:80].split(b'\0')[0]
-            if kind == b'Apple_HFS':
+            if kind == b'Apple_HFS': # legacy-compat: partition type code
                 vols.append(data[start * 512 : (start + length) * 512])
         return vols
     if data[1024:1026] == b'BD':
@@ -147,7 +147,7 @@ def unpack_image(image, out):
         vol = machfs.Volume()
         vol.read(v)
         walk(vol, dest, stacks, counts, finder)
-    # Each file's Mac type and creator, which HyperCard and the Finder use.
+    # Each file's Mac type and creator, which the classic app and the Finder use.
     with open(os.path.join(out, 'FINDER.tsv'), 'w') as f:
         for path, kind, creator in finder:
             f.write(f'{os.path.relpath(path, out)}\t{kind}\t{creator}\n')

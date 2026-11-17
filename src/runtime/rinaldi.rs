@@ -2,7 +2,7 @@
 //! (those are in files.rs): LineCount, FullSort, DateSort, GetPassword,
 //! Prompt, GetMode, MacType, Switch, CapsLock, ClipInfo, ATalkZones,
 //! GlobalList, WindName, ListSelect, Promptoid, Mousoid, Infoid,
-//! Notification and SendPS. Apple carried his collection on its Developer CDs, a
+//! Notification and SendPS. The vendor carried his collection on its Developer CDs, a
 //! demo stack for each. RandomCard does them itself, by the same names and
 //! with the same answers. As his did, each answers "!" with its notice and
 //! "?" with its syntax, and reports a problem as text starting "Error :".
@@ -95,7 +95,7 @@ impl Interp {
                 }
             }
             "datesort" => date_sort(&arg(0)),
-            // The number HyperCard's `ask password` gives for what was typed,
+            // The number the classic app's `ask password` gives for what was typed,
             // or empty if canceled.
             "getpassword" => {
                 let prompt = if arg(0).trim().is_empty() { "Please enter password :".to_string() } else { arg(0) };
@@ -264,7 +264,7 @@ impl Interp {
         Ok(())
     }
 
-    /// Promptoid: Prompt for HyperCard 2, a window the script changes with
+    /// Promptoid: Prompt for classic 2, a window the script changes with
     /// `set text of window "Promptoid"` and takes away with `close window`.
     fn promptoid(&mut self, args: &[String]) -> Result<(), String> {
         let arg = |i: usize| args.get(i).map(|a| a.trim().to_string()).unwrap_or_default();

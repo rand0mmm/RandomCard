@@ -2,7 +2,7 @@
 //! files, listing folders and reading their details. These are the file
 //! externals of Frédéric Rinaldi's collection (FileCopy, EraseFile, FullMove,
 //! FullRename, GetDir, GetFInfo, FullSFPut, GetBootVol, GetSysFolder), which
-//! Apple carried on its Developer CDs, done by RandomCard itself and called
+//! the vendor carried on its Developer CDs, done by RandomCard itself and called
 //! by the same names, with the same answers.
 //!
 //! As his did, each answers "!" with its notice and "?" with its syntax, and

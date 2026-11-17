@@ -1,6 +1,6 @@
 //! Pictures from other programs: an image on the system clipboard pasted,
 //! or a picture file dropped onto the card, becomes a paint selection, as
-//! pasted art did in HyperCard. Pictures copied in RandomCard go onto the
+//! pasted art did in the classic app. Pictures copied in RandomCard go onto the
 //! system clipboard too, for other programs.
 
 use eframe::egui;
@@ -91,7 +91,7 @@ impl App {
     pub(super) fn dropped_files(&mut self, ctx: &egui::Context) {
         let (files, pos) = ctx.input(|i| (i.raw.dropped_files.clone(), i.pointer.hover_pos()));
         let Some(file) = files.first() else { return };
-        // A movie opens in a movie window, as HyperCard 2.4 opened one
+        // A movie opens in a movie window, as classic 2.4 opened one
         // dropped on it.
         let path = file.path().to_path_buf();
         if crate::video::is_movie(&path) {

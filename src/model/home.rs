@@ -1,4 +1,4 @@
-//! The Home stack RandomCard makes the first time it runs, as HyperCard came
+//! The Home stack RandomCard makes the first time it runs, as the classic app came
 //! with one. It opens at startup, Go ▸ Home returns to it, and its script is
 //! part of every stack's message path.
 
@@ -77,21 +77,21 @@ const SEARCH_PATHS: [(&str, &str); 3] = [
     ("Documents", "Folders to look in for documents, one per line."),
 ];
 
-/// Bring a Home stack saved by an earlier RandomCard up to date: HyperCard's
+/// Bring a Home stack saved by an earlier RandomCard up to date: the classic app's
 /// own cards (`add_preference_cards`), and no Import button now that Open
-/// Stack opens HyperCard stacks too. Answers whether it changed anything.
+/// Stack opens classic stacks too. Answers whether it changed anything.
 pub fn update(s: &mut Stack) -> bool {
     let added = add_preference_cards(s);
     added | drop_import_button(s)
 }
 
-/// Remove the Import a HyperCard Stack… button RandomCard once put on
+/// Remove the Import a classic Stack… button RandomCard once put on
 /// Home's first card, if the user left it as it was, and move the buttons
 /// below it up into its place.
 fn drop_import_button(s: &mut Stack) -> bool {
     let Some(card) = s.cards.first_mut() else { return false };
-    let old = "on mouseUp\n  doMenu \"Import HyperCard Stack…\"\nend mouseUp";
-    let Some(i) = card.parts.iter().position(|p| p.name == "Import a HyperCard Stack…" && p.script == old) else {
+    let old = "on mouseUp\n  doMenu \"Import HyperCard Stack…\"\nend mouseUp"; // legacy-compat: a button old saved Homes carry
+    let Some(i) = card.parts.iter().position(|p| p.name == "Import a HyperCard Stack…" && p.script == old) else { // legacy-compat: a button old saved Homes carry
         return false;
     };
     let gone = card.parts.remove(i);
@@ -102,7 +102,7 @@ fn drop_import_button(s: &mut Stack) -> bool {
     true
 }
 
-/// Give a Home stack HyperCard's own cards if it lacks them: "User
+/// Give a Home stack the classic app's own cards if it lacks them: "User
 /// Preferences", and "Stacks", "Applications" and "Documents" with their
 /// search paths. Stacks made as replacements for Home's script go to them
 /// for the user's name, level and paths (their getHomeInfo handlers). The
@@ -161,7 +161,7 @@ pub fn add_preference_cards(s: &mut Stack) -> bool {
         b.script = format!("on mouseUp\n  set userLevel to {}\nend mouseUp", i + 1);
         prefs.parts.push(b);
     }
-    // The level as a number, as HyperCard's Home kept it.
+    // The level as a number, as the classic app's Home kept it.
     let mut number = Part::new_field(id(), "User Level", Rect::new(200, 96, 240, 116));
     number.visible = false;
     number.lock_text = true;

@@ -25,7 +25,7 @@ pub const DEFAULT_WIDTH: u32 = 512;
 pub const DEFAULT_HEIGHT: u32 = 342;
 
 /// A Command-key shortcut as this platform writes it: ⌘M on a Mac, where
-/// HyperCard's Command key is, and Ctrl+M elsewhere.
+/// the classic app's Command key is, and Ctrl+M elsewhere.
 pub fn shortcut(key: &str) -> String {
     if cfg!(target_os = "macos") { format!("⌘{key}") } else { format!("Ctrl+{key}") }
 }
@@ -104,14 +104,14 @@ pub enum PartStyle {
     Shadow,
     CheckBox,
     Radio,
-    /// HyperCard 2's standard Macintosh push button.
+    /// classic 2's standard push button.
     Standard,
     Default,
     Oval,
     /// A popup menu: the button's lines are its items.
     Popup,
     Scrolling,
-    /// A slider, which HyperCard never had: its contents is its value,
+    /// A slider, which the classic app never had: its contents is its value,
     /// from its min to its max in steps of its step, as HTML's range input.
     Slider,
 }
@@ -298,7 +298,7 @@ pub struct Part {
     pub choices: String,
 
     // Colors: the text (foreColor), the fill (backColor) and the frame
-    // (borderColor). None is HyperCard's black and white.
+    // (borderColor). None is the classic app's black and white.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fore_color: Option<color::Rgb>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -529,9 +529,9 @@ pub struct Icon {
     pub picture: Picture,
 }
 
-/// A HyperCard 2 palette: a picture with buttons that send messages, shown
+/// A classic 2 palette: a picture with buttons that send messages, shown
 /// in a floating window by the `palette` command (a 'PLTE' resource and its
-/// 'PICT' in HyperCard).
+/// 'PICT' in the classic app).
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Palette {
@@ -549,7 +549,7 @@ pub struct PaletteButton {
     pub message: String,
 }
 
-/// A sampled sound, as played by HyperTalk's `play` command.
+/// A sampled sound, as played by xTalk's `play` command.
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Sound {
@@ -630,7 +630,7 @@ mod pcm {
 pub struct Protection {
     /// The highest user level this stack allows (5 = no limit).
     pub user_level_limit: u8,
-    /// HyperCard-compatible password hash (see `password.rs`).
+    /// classic-compatible password hash (see `password.rs`).
     pub password_hash: Option<u32>,
     pub cant_delete: bool,
     pub cant_abort: bool,
@@ -687,7 +687,7 @@ pub struct Stack {
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub fonts: Vec<StackFont>,
     /// AddColor's color pictures, by `color_picture_key`: PICT resources
-    /// from the HyperCard stack's resource fork, and PICT files beside it,
+    /// from the classic stack's resource fork, and PICT files beside it,
     /// kept in the stack so they go where it goes.
     #[serde(skip_serializing_if = "BTreeMap::is_empty")]
     pub color_pictures: BTreeMap<String, std::sync::Arc<Picture>>,
@@ -696,7 +696,7 @@ pub struct Stack {
     pub patterns: Vec<[u8; 8]>,
     #[serde(skip)]
     pub path: Option<PathBuf>,
-    /// The original HyperCard file this stack was imported from, until saved.
+    /// the original app file this stack was imported from, until saved.
     #[serde(skip)]
     pub imported_from: Option<PathBuf>,
 }
@@ -761,10 +761,10 @@ impl Stack {
         home::build()
     }
 
-    /// Add an icon, by a new id clear of the stack's icons and HyperCard's
+    /// Add an icon, by a new id clear of the stack's icons and the classic app's
     /// own, and return the id. A picture file's icon keeps its size and color.
     pub fn add_icon(&mut self, name: String, picture: Picture) -> i32 {
-        let builtin = crate::import::hypercard_icons().keys().copied().max().unwrap_or(0);
+        let builtin = crate::import::builtin_icons().keys().copied().max().unwrap_or(0);
         let id = self.icons.keys().copied().max().unwrap_or(0).max(builtin) + 1;
         self.icons.insert(id, Icon { name, picture });
         id

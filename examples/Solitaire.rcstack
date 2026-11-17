@@ -6152,7 +6152,7 @@
           },
           "script": "",
           "style": "Scrolling",
-          "contents": "Each card is a button whose icon is the card's face, or its back: icons of any size, in color, changed by the script as cards turn over.\nDragging is HyperTalk: repeat while the mouse is down, moving the cards to the mouseLoc, and setting their partNumber to bring them to the front.\nEach game's rules are its card's own script, in plain HyperTalk, and what the games share (the shuffle, the record, the win) is in the stack script: choose Objects ▸ Card Script or Stack Script to read them.\nA game in progress is kept in hidden fields, so it's saved with the stack, and Undo goes back to the start of the deal.",
+          "contents": "Each card is a button whose icon is the card's face, or its back: icons of any size, in color, changed by the script as cards turn over.\nDragging is xTalk: repeat while the mouse is down, moving the cards to the mouseLoc, and setting their partNumber to bring them to the front.\nEach game's rules are its card's own script, in plain xTalk, and what the games share (the shuffle, the record, the win) is in the stack script: choose Objects ▸ Card Script or Stack Script to read them.\nA game in progress is kept in hidden fields, so it's saved with the stack, and Undo goes back to the start of the deal.",
           "text_size": 10,
           "text_style": "plain",
           "text_align": "Left",

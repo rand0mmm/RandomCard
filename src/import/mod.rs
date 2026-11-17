@@ -1,4 +1,4 @@
-//! Importing original HyperCard stack files (1.x and 2.x).
+//! Importing the original app stack files (1.x and 2.x).
 //!
 //! A stack's data fork is a sequence of big-endian blocks, each with a 16-byte
 //! header (size, type, id, filler): STAK (the stack), LIST and PAGE (card
@@ -6,7 +6,7 @@
 //! (WOBA-compressed pictures), FTBL (font names) and so on. The layouts here
 //! follow WyldCard's stack reader and Pierre Lorenzi's HyperCardPreview.
 //! Button icons, sounds and AddColor colors come from the stack's resource
-//! fork when one can be found; other resources (XCMDs, PICTs) aren't used.
+//! fork when one can be found; other resources (external commands, PICTs) aren't used.
 
 pub(crate) mod addcolor;
 pub mod fix_steps;
@@ -14,7 +14,7 @@ pub mod pict;
 mod resources;
 mod text;
 
-pub use resources::{hypercard_icon, hypercard_icons};
+pub use resources::{builtin_icon, builtin_icons};
 pub use text::TextEncoding;
 mod woba;
 
@@ -30,22 +30,22 @@ use woba::QdRect;
 const HEADER: usize = 16;
 const MACBINARY_HEADER: usize = 128;
 
-/// Reported when a private-access HyperCard stack needs its password, and
+/// Reported when a private-access classic stack needs its password, and
 /// when the password given is wrong.
 pub const NEEDS_PASSWORD: &str = "This stack is password protected.";
 pub const WRONG_PASSWORD: &str = "That isn't the stack's password.";
 
-/// Open a RandomCard stack or an original HyperCard stack, whichever `path`
-/// is. Private-access HyperCard stacks need their password to import.
+/// Open a RandomCard stack or an the original app stack, whichever `path`
+/// is. Private-access classic stacks need their password to import.
 pub fn load_any(path: &Path, password: Option<&str>) -> Result<Stack, String> {
     load_any_fixed(path, password).map(|(s, _)| s)
 }
 
 /// As load_any, also answering how many fix-step changes (FIX_STEPS.tsv) a
-/// HyperCard stack got as it was converted.
+/// classic stack got as it was converted.
 pub fn load_any_fixed(path: &Path, password: Option<&str>) -> Result<(Stack, usize), String> {
     let bytes = std::fs::read(path).map_err(|e| format!("Can't open {}: {e}", path.display()))?;
-    if is_hypercard_stack(&bytes) {
+    if is_classic_stack(&bytes) {
         let mut s = import_bytes(&bytes, path, password)?;
         let name = path.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
         let made = fix_steps::apply(&mut s, &name);
@@ -55,12 +55,12 @@ pub fn load_any_fixed(path: &Path, password: Option<&str>) -> Result<(Stack, usi
         Stack::load(path).map(|s| (s, 0))
     } else {
         let name = path.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
-        Err(format!("\"{name}\" isn't a stack. RandomCard opens HyperCard stacks and its own."))
+        Err(format!("\"{name}\" isn't a stack. RandomCard opens classic stacks and its own."))
     }
 }
 
-/// Whether the bytes look like a HyperCard stack, optionally MacBinary-wrapped.
-pub fn is_hypercard_stack(bytes: &[u8]) -> bool {
+/// Whether the bytes look like a classic stack, optionally MacBinary-wrapped.
+pub fn is_classic_stack(bytes: &[u8]) -> bool {
     data_fork(bytes).is_some()
 }
 
@@ -87,7 +87,7 @@ fn data_fork(bytes: &[u8]) -> Option<&[u8]> {
 }
 
 pub fn import_bytes(bytes: &[u8], path: &Path, password: Option<&str>) -> Result<Stack, String> {
-    let data = data_fork(bytes).ok_or("This is not a HyperCard stack.")?;
+    let data = data_fork(bytes).ok_or("This is not a classic stack.")?;
     let blocks = read_blocks(data)?;
     let name = path.file_stem().map(|s| s.to_string_lossy().to_string()).unwrap_or_else(|| "Imported".into());
     let (mut stack, enc) = convert(&blocks, &name, password)?;
@@ -107,7 +107,7 @@ pub fn import_bytes(bytes: &[u8], path: &Path, password: Option<&str>) -> Result
 
 /// Fetch icons the stack's buttons use, and icons and sounds its scripts
 /// name, from further along the resource chain when the stack's own fork
-/// lacks them, and finally from HyperCard's built-in icons.
+/// lacks them, and finally from the classic app's built-in icons.
 fn add_chain_resources(stack: &mut Stack, path: &Path, enc: TextEncoding) {
     let all_parts = stack.cards.iter().flat_map(|c| &c.parts).chain(stack.backgrounds.iter().flat_map(|b| &b.parts));
     let mut missing_icons: HashSet<i32> = all_parts.map(|p| p.icon).filter(|i| *i != 0).collect();
@@ -116,7 +116,7 @@ fn add_chain_resources(stack: &mut Stack, path: &Path, enc: TextEncoding) {
     let mut have_sounds: HashSet<String> = stack.sounds.values().map(|s| s.name.to_lowercase()).collect();
     let mut have_icons: HashSet<String> = stack.icons.values().map(|i| i.name.to_lowercase()).collect();
     let forks = resources::chain_forks(path);
-    let chain = forks.iter().map(|f| resources::icons(f, enc)).chain(std::iter::once(resources::hypercard_icons().clone()));
+    let chain = forks.iter().map(|f| resources::icons(f, enc)).chain(std::iter::once(resources::builtin_icons().clone()));
     for icons in chain {
         for (id, icon) in icons {
             let name = icon.name.to_lowercase();
@@ -254,7 +254,7 @@ pub(crate) const MAC_ROMAN_HIGH: [char; 128] = [
     'Ò', 'Ú', 'Û', 'Ù', 'ı', 'ˆ', '˜', '¯', '˘', '˙', '˚', '¸', '˝', '˛', 'ˇ',
 ];
 
-/// Decode MacRoman text, turning classic Mac carriage returns into newlines.
+/// Decode MacRoman text, turning classic carriage returns into newlines.
 pub fn mac_roman(bytes: &[u8]) -> String {
     TextEncoding::MacRoman.decode(bytes)
 }
@@ -265,11 +265,11 @@ struct Block<'a> {
     kind: [u8; 4],
     id: i32,
     data: &'a [u8],
-    /// From a HyperCard 1.x stack (file format 8 or earlier).
+    /// From a classic 1.x stack (file format 8 or earlier).
     v1: bool,
 }
 
-/// HyperCard 1.x blocks have 12-byte headers, without 2.x's alignment
+/// Classic 1.x blocks have 12-byte headers, without 2.x's alignment
 /// filler; most of their fields then sit 4 bytes earlier. The stack block
 /// keeps 16 (its checksum takes the filler's place).
 const V1_HEADER: usize = 12;
@@ -299,7 +299,7 @@ fn read_blocks(data: &[u8]) -> R<Vec<Block<'_>>> {
     }
     match blocks.first() {
         Some(b) if &b.kind == b"STAK" => Ok(blocks),
-        _ => Err("This is not a HyperCard stack.".into()),
+        _ => Err("This is not a classic stack.".into()),
     }
 }
 
@@ -316,7 +316,7 @@ struct StackInfo {
 /// The part of the STAK block that private access encrypts.
 const ENCRYPTED: std::ops::Range<usize> = 0x08..0x08 + 0x32;
 
-/// Decrypt a private-access stack's header with its password, as HyperCard
+/// Decrypt a private-access stack's header with its password, as the classic app
 /// did (via HyperCardPreview's StackBlockDecrypter).
 fn decrypt_header(data: &[u8], password: &str) -> R<Vec<u8>> {
     use crate::model::password::{first_hash, hash_number, stored_hash};
@@ -343,7 +343,7 @@ fn read_stack_block(data: &[u8], password: Option<&str>, enc: TextEncoding) -> R
     let mut r = Reader::new(data);
     let format = r.u32()?;
     if !(1..=10).contains(&format) {
-        return Err(format!("Unknown HyperCard stack format ({format})."));
+        return Err(format!("Unknown classic stack format ({format})."));
     }
     // Flags aren't encrypted; private access encrypts the header around them.
     let flags = Reader::at(data, 0x3c).u16()?;
@@ -631,7 +631,7 @@ fn read_styles(data: &[u8], fonts: &HashMap<i16, String>) -> R<(HashMap<i32, Tex
             font: (font != -1).then(|| fonts.get(&font).cloned().unwrap_or_else(|| "Geneva".into())),
             size: (size > 0).then_some(size as u32),
             style: (style != -1).then(|| style_names(flags)),
-            // HyperCard kept a color here but always drew text in black.
+            // the classic app kept a color here but always drew text in black.
             color: None,
         });
     }
@@ -691,7 +691,7 @@ fn read_bitmap(data: &[u8], width: u32, height: u32) -> R<Picture> {
 /// The stack, and the encoding its text was in.
 fn convert(blocks: &[Block], name: &str, password: Option<&str>) -> R<(Stack, TextEncoding)> {
     // The fonts' ids tell the encoding, for the rest and their own names:
-    // from the font table, or without one (HyperCard 1.x), the parts' own.
+    // from the font table, or without one (classic 1.x), the parts' own.
     let (fonts, enc) = match blocks.iter().find(|b| &b.kind == b"FTBL") {
         Some(b) => {
             let enc = TextEncoding::of_fonts(read_fonts(b.data, TextEncoding::MacRoman)?.into_keys());
@@ -914,13 +914,13 @@ mod tests {
 
     #[test]
     fn files_that_arent_stacks() {
-        // A VideoWorks movie from Apple's Developer CD, say: not UTF-8, not a stack.
+        // A VideoWorks movie from the vendor's Developer CD, say: not UTF-8, not a stack.
         let dir = std::env::temp_dir().join(format!("randomcard-notstack-{}", std::process::id()));
         std::fs::create_dir_all(&dir).unwrap();
         let path = dir.join("OVERVIEW");
         std::fs::write(&path, [0xff, 0xff, 0xff, 0xff, 0, 0, 0, 0, 0, 0xd2]).unwrap();
         let e = load_any(&path, None).unwrap_err();
-        assert_eq!(e, "\"OVERVIEW\" isn't a stack. RandomCard opens HyperCard stacks and its own.");
+        assert_eq!(e, "\"OVERVIEW\" isn't a stack. RandomCard opens classic stacks and its own.");
         // A damaged stack whose bytes happen to start like JSON.
         std::fs::write(&path, [b'{', b'{', b'z', 0x8a, 0x80]).unwrap();
         assert!(load_any(&path, None).unwrap_err().contains("isn't a stack"));
@@ -992,7 +992,7 @@ mod tests {
             (b"ICON", 3001, "Stack", vec![0xff; 128]),
             (b"ICON", 3002, "Other", vec![0; 128]),
         ]);
-        std::fs::write(dir.join("HyperCard.rsrc"), fork).unwrap();
+        std::fs::write(dir.join("HyperCard.rsrc"), fork).unwrap(); // legacy-compat: file name of a resource file on disk
         let mut stack = Stack::new("Test");
         stack.script = "on mouseUp\n  play \"boing\"\nend mouseUp".into();
         stack.cards[0].parts.push(Part { icon: 3001, ..Part::new_button(1, "B", Rect::new(0, 0, 10, 10)) });
@@ -1005,8 +1005,8 @@ mod tests {
 
     #[test]
     fn rejects_other_files() {
-        assert!(!is_hypercard_stack(b"{\"name\": \"json stack\"}"));
-        assert!(is_hypercard_stack(b"\0\0\x08\0STAK\xff\xff\xff\xff\0\0\0\0"));
+        assert!(!is_classic_stack(b"{\"name\": \"json stack\"}"));
+        assert!(is_classic_stack(b"\0\0\x08\0STAK\xff\xff\xff\xff\0\0\0\0"));
     }
 
     /// Imports the sample stacks from HyperCardPreview's test suite when
@@ -1083,7 +1083,7 @@ mod tests {
         );
 
         assert_eq!(open("TestStackScript").script, "-- script of stack\n-- with two lines");
-        // A HyperCard 1.x stack: shorter block headers and plain text.
+        // A classic 1.x stack: shorter block headers and plain text.
         let s = open("TestV1");
         assert_eq!((s.cards.len(), s.backgrounds.len()), (9, 3));
         let count = |parts: &[Part], kind| parts.iter().filter(|p| p.kind == kind).count();
@@ -1119,7 +1119,7 @@ mod tests {
         assert_eq!(home.patterns.len(), 40);
         assert_ne!(home.patterns, crate::paint::DEFAULT_PATTERNS.to_vec());
         // Home.rsrc beside Home.stack holds nine of the icons its buttons use;
-        // the rest are HyperCard's built-in icons, from HyperCard's own fork.
+        // The rest are the classic app's built-in icons, from the classic app's own fork.
         for id in [3000, 3001, 6134, 7024, 11316, 12659, 28226, 28867, 30504] {
             assert!(home.icons.contains_key(&id), "icon {id}");
         }
@@ -1127,11 +1127,11 @@ mod tests {
         assert!(used.contains(&3001) && used.contains(&28226));
 
         // Icons a stack lacks come from further along the resource chain, e.g.
-        // a HyperCard application fork beside it; only the used ones are copied.
+        // a classic application fork beside it; only the used ones are copied.
         let tmp = std::env::temp_dir().join(format!("randomcard-chain-{}", std::process::id()));
         std::fs::create_dir_all(&tmp).unwrap();
         std::fs::copy(dir.join("Home.stack"), tmp.join("My Stack")).unwrap();
-        std::fs::copy(dir.join("Home.rsrc"), tmp.join("HyperCard.rsrc")).unwrap();
+        std::fs::copy(dir.join("Home.rsrc"), tmp.join("HyperCard.rsrc")).unwrap(); // legacy-compat: file name of a resource file on disk
         let chained = load_any(&tmp.join("My Stack"), None);
         std::fs::remove_dir_all(&tmp).ok();
         let chained = chained.unwrap();
@@ -1151,7 +1151,7 @@ mod tests {
                 scripts.extend(c.parts.iter().map(|p| p.script.clone()));
             }
             for src in scripts {
-                if let Err(e) = crate::hypertalk::parser::parse_script(&src) {
+                if let Err(e) = crate::lang::parser::parse_script(&src) {
                     panic!("{}: {e}\n{src}", entry.path().display());
                 }
             }

@@ -14,7 +14,7 @@ pub struct TextStyle {
     pub font: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub size: Option<u32>,
-    /// Comma-separated, as HyperTalk writes it: "bold,italic", or "plain".
+    /// Comma-separated, as xTalk writes it: "bold,italic", or "plain".
     #[serde(skip_serializing_if = "Option::is_none")]
     pub style: Option<String>,
     /// The text's color (`the foreColor` of a chunk).
@@ -30,13 +30,13 @@ pub struct StyleRun {
     pub style: TextStyle,
 }
 
-/// The fonts in the Font menu: HyperCard's usual Macintosh fonts.
+/// The fonts in the Font menu: the classic app's usual the classic fonts.
 pub const FONTS: &[&str] = &["Chicago", "Courier", "Geneva", "Helvetica", "Monaco", "New York", "Palatino", "Times"];
 
 /// The text sizes in the Style menu.
 pub const SIZES: &[u32] = &[9, 10, 12, 14, 18, 24];
 
-/// HyperCard's text styles, in its menu order.
+/// The classic app's text styles, in its menu order.
 pub const STYLES: &[&str] = &["bold", "italic", "underline", "outline", "shadow", "condense", "extend", "group"];
 
 /// Tidy a textStyle value: "Bold, Italic" → "bold,italic"; nothing → "plain".

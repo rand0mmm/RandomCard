@@ -1,5 +1,5 @@
 //! Songs: soundtracker modules (MOD, XM, S3M, IT) a stack carries, as
-//! HyperCard games played music with the PlayMOD external. They play on a
+//! the classic app games played music with the PlayMOD external. They play on a
 //! channel of their own beside sound effects, looping until stopped.
 
 use std::collections::HashMap;

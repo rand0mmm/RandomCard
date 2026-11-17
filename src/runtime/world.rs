@@ -24,7 +24,7 @@ pub enum ObjRef {
     /// or one left without a file (see `World::others`).
     OtherStack(u32),
     MsgBox,
-    HyperCard,
+    Host,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -50,7 +50,7 @@ pub enum Tool {
 }
 
 impl Tool {
-    /// In HyperCard's tool palette order.
+    /// In the classic app's tool palette order.
     pub const ALL: &'static [Tool] = &[
         Tool::Browse,
         Tool::Button,
@@ -95,7 +95,7 @@ impl Tool {
         }
     }
 
-    /// HyperCard's tool number, as passed with the `choose` message.
+    /// The classic app's tool number, as passed with the `choose` message.
     pub fn number(self) -> u32 {
         match self {
             Tool::Browse => 1,
@@ -141,7 +141,7 @@ impl Tool {
         !matches!(self, Tool::Browse | Tool::Button | Tool::Field)
     }
 
-    /// Accepts names like "browse", "round rect tool" or HyperCard tool numbers.
+    /// Accepts names like "browse", "round rect tool" or classic tool numbers.
     pub fn parse(s: &str) -> Option<Tool> {
         let s = s.trim().to_ascii_lowercase();
         let s = s.strip_suffix(" tool").unwrap_or(&s).trim().to_string();
@@ -214,7 +214,7 @@ pub struct FieldRange {
     pub end: usize,
 }
 
-/// A window a script opened, as HyperCard 2's externals did: scripts refer
+/// A window a script opened, as classic 2's externals did: scripts refer
 /// to it by name (`the text of window "Notes"`, `show window "Notes"`).
 #[derive(Clone, Debug)]
 pub struct ScriptWindow {
@@ -271,7 +271,7 @@ impl ScriptWindow {
                 _ => return None,
             },
             "fraction" => match self.kind {
-                WindowKind::Progress(f) => crate::hypertalk::value::format_number(f, "0.######"),
+                WindowKind::Progress(f) => crate::lang::value::format_number(f, "0.######"),
                 _ => return None,
             },
             "id" => match self.kind {
@@ -307,7 +307,7 @@ impl ScriptWindow {
                 .map_err(|_| format!("Expected a number, not \"{v}\""))
         };
         let point = |v: &str| {
-            crate::hypertalk::value::parse_point(v)
+            crate::lang::value::parse_point(v)
                 .ok_or_else(|| format!("Expected a point, not \"{v}\""))
         };
         let r = self.rect;
@@ -317,7 +317,7 @@ impl ScriptWindow {
                 self.dirty = false;
             }
             "rect" | "rectangle" => {
-                let Some((l, t, rt, b)) = crate::hypertalk::value::parse_rect(v) else {
+                let Some((l, t, rt, b)) = crate::lang::value::parse_rect(v) else {
                     return Err(format!("Expected a rectangle, not \"{v}\""));
                 };
                 self.rect = crate::model::Rect::new(l, t, rt, b);
@@ -415,7 +415,7 @@ pub enum KeyAction {
     NextField,
     /// Stop editing the field.
     CloseField,
-    /// Type into the message box (HyperCard's blind typing).
+    /// Type into the message box (the classic app's blind typing).
     BlindType(String),
     /// Run what's in the message box.
     RunMessage,
@@ -426,7 +426,7 @@ pub enum KeyAction {
     Nothing,
 }
 
-/// Whether a script names RandomCard's palette. HyperCard had a Tools
+/// Whether a script names RandomCard's palette. The classic app had a Tools
 /// palette (`tool window`) and a Patterns palette (`pattern window`);
 /// RandomCard has one palette with the tools, patterns and colors, which
 /// both names mean.
@@ -560,7 +560,7 @@ pub enum Event {
     /// the key does if no handler takes it.
     /// `at`: when the key was typed, so `flush keys` can drop older ones.
     Key { target: ObjRef, message: String, args: Vec<String>, default: KeyAction, at: std::time::Instant },
-    /// Open a stack file (RandomCard or HyperCard), asking for its password
+    /// Open a stack file (RandomCard or the classic app), asking for its password
     /// if it needs one.
     OpenFile(std::path::PathBuf),
     /// Open a stack file in a new card window.
@@ -577,7 +577,7 @@ pub enum Event {
     /// is sent closeMovie, and it closes.
     CloseMovie(u32),
     /// A movie file dropped on the card window: it opens in a movie window
-    /// down and to the right of the card's corner, as in HyperCard 2.4.
+    /// down and to the right of the card's corner, as in classic 2.4.
     OpenMovie(std::path::PathBuf),
     /// The user clicked button `n` (from 0) of the named palette.
     PaletteButton(String, usize),
@@ -598,7 +598,7 @@ pub struct World {
     /// as `the rect of card window` reports it. The UI keeps it up to date;
     /// scripts move the window by setting it.
     pub window_origin: (i32, i32),
-    /// The card window's scroll, as scripts set it (HyperCard 2 scrolled a
+    /// The card window's scroll, as scripts set it (classic 2 scrolled a
     /// card bigger than its window). RandomCard always shows the whole card.
     pub card_scroll: String,
     /// Command-Shift-E has shown the card window's size box: the next click
@@ -636,8 +636,8 @@ pub struct World {
     pub requests: Vec<UiRequest>,
     /// Text windows scripts have opened (TEXWindow), in front last.
     pub script_windows: Vec<ScriptWindow>,
-    /// Movie windows (HyperCard 2.4's Movie command), in front last. They
-    /// stay open from card to card, as in HyperCard.
+    /// Movie windows (classic 2.4's Movie command), in front last. They
+    /// stay open from card to card, as in the classic app.
     pub movies: Vec<super::movies::MovieWindow>,
     /// The id the next movie window gets.
     pub next_movie_id: u32,
@@ -670,15 +670,15 @@ pub struct World {
     pub brush: u32,
     pub poly_sides: u32,
     /// The spray can's circle across, in pixels (`the spraySize`), and the
-    /// dots it sprays at a time (`the sprayDensity`): beyond HyperCard,
+    /// dots it sprays at a time (`the sprayDensity`): beyond the classic app,
     /// whose spray was fixed at 16 and 12.
     pub spray_size: u32,
     pub spray_density: u32,
     /// The layer's picture before the last thing painted on it: what's
-    /// changed since is HyperCard's new element, which Select selects and
+    /// changed since is the classic app's new element, which Select selects and
     /// the Paint menu works on until the next press on the card.
     pub painted_from: Option<crate::runtime::undo::LayerPicture>,
-    /// The layer's picture as last kept, for Revert. HyperCard held paint
+    /// The layer's picture as last kept, for Revert. The classic app held paint
     /// changes until Keep, going to another card or layer, or quitting.
     pub kept: Option<crate::runtime::undo::LayerPicture>,
     /// The space between shapes drawn with Draw Multiple (`the multiSpace`).
@@ -702,7 +702,7 @@ pub struct World {
     /// Undo and redo history (see `undo.rs`).
     pub undo: Vec<super::undo::UndoEntry>,
     pub redo: Vec<super::undo::UndoEntry>,
-    /// The user level, 1 Browsing … 5 Scripting. Global, as in HyperCard: it
+    /// The user level, 1 Browsing … 5 Scripting. Global, as in the classic app: it
     /// carries over from stack to stack. The stack's protection caps it.
     pub user_level: u8,
     /// The stack's password was given this session, lifting its level limit.
@@ -868,7 +868,7 @@ impl World {
         let card_id = stack.cards[0].id;
         let (width, height) = (stack.width as i32, stack.height as i32);
         let msg_rect = crate::model::Rect::new(0, height, width, height + 30);
-        // An imported HyperCard stack hasn't been saved in RandomCard's format yet.
+        // An imported classic stack hasn't been saved in RandomCard's format yet.
         let dirty = stack.imported_from.is_some() && stack.path.is_none();
         World {
             stack,
@@ -1123,7 +1123,7 @@ impl World {
         std::iter::once(&self.stack).chain(self.windows.iter().map(|sw| &sw.stack))
     }
 
-    /// Remember a card for the Recent dialog, which holds 42 as HyperCard's did.
+    /// Remember a card for the Recent dialog, which holds 42 as the classic app's did.
     pub fn note_recent(&mut self, id: Id) {
         if self.lock_recent {
             return;
@@ -1208,7 +1208,7 @@ impl World {
     }
 
     /// Show the user level on Home's User Preferences card, where stacks
-    /// made for HyperCard read it.
+    /// made for the classic app read it.
     pub fn show_level_at_home(&mut self) {
         let level = self.user_level;
         if let Some(home) = self.home_mut() {
@@ -1280,7 +1280,7 @@ impl World {
         text.chars().skip(r.start).take(r.end.saturating_sub(r.start)).collect()
     }
 
-    /// How HyperCard names a range's field: "card field 2", "bkgnd field 1".
+    /// How the classic app names a range's field: "card field 2", "bkgnd field 1".
     pub fn range_field_name(&self, r: &FieldRange) -> String {
         let fields = self.stack.parts(r.card, r.layer).iter().filter(|p| p.kind == crate::model::PartKind::Field);
         format!("{} field {}", r.layer.name(), fields.take_while(|p| p.id != r.field).count() + 1)
@@ -1359,7 +1359,7 @@ pub fn same_path(a: Option<&std::path::Path>, b: Option<&std::path::Path>) -> bo
 }
 
 /// Whether a name refers to a stack: its name, its file's name, or its path.
-/// The file a stack came from: its own, or the HyperCard stack it was
+/// The file a stack came from: its own, or the classic stack it was
 /// converted from, until it's saved.
 pub fn stack_file(s: &Stack) -> Option<&std::path::Path> {
     s.path.as_deref().or(s.imported_from.as_deref())

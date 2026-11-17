@@ -1,5 +1,5 @@
 //! QuickDraw pictures ('PICT'), as far as their bitmaps go: the bit images
-//! and pixel maps that HyperCard palettes, Picture windows and pasted art are
+//! and pixel maps that classic palettes, Picture windows and pasted art are
 //! made of. Drawing opcodes (lines, shapes, text) are skipped; `drawn_only`
 //! in the result says whether any were.
 
@@ -28,7 +28,7 @@ impl Pict {
         p
     }
 
-    /// The picture in black and white, as HyperCard's paint layers hold it:
+    /// The picture in black and white, as the classic app's paint layers hold it:
     /// dark pixels black, the rest white.
     pub fn to_picture(&self) -> crate::model::Picture {
         use crate::model::Pixel;

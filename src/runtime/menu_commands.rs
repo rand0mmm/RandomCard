@@ -1,8 +1,8 @@
 //! Scripts changing the menu bar: `create menu`, `put … into menu`,
 //! `delete menuItem`, `enable`/`disable`, menu properties, `reset menuBar`.
 
-use crate::hypertalk::ast::{ChunkIndex, MenuRef, Prep};
-use crate::hypertalk::value::bool_str;
+use crate::lang::ast::{ChunkIndex, MenuRef, Prep};
+use crate::lang::value::bool_str;
 
 use super::interp::{Interp, R, err, to_bool};
 use super::menus::{self, Menu, MenuItem};

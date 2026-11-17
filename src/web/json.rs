@@ -1,4 +1,4 @@
-//! JSON as HyperTalk reads it: everything is text. A string reads as its
+//! JSON as xTalk reads it: everything is text. A string reads as its
 //! plain text, a number or true/false as written, null as empty, and an
 //! object or array as JSON text, ready to read again. Objects keep their
 //! keys in the order they came.
@@ -76,7 +76,7 @@ pub fn get(source: &str, steps: &[Step]) -> Result<String, String> {
     follow(source, steps).map(|v| text(&v))
 }
 
-/// A value from HyperTalk text: JSON if it already is JSON (`36`, `true`,
+/// A value from xTalk text: JSON if it already is JSON (`36`, `true`,
 /// `{"a":1}`, `"42"` in quotes), and a string otherwise.
 pub fn value_of(text: &str) -> Value {
     serde_json::from_str(text.trim()).unwrap_or_else(|_| Value::String(text.to_string()))

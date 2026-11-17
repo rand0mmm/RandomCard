@@ -1,4 +1,4 @@
-"""Write WORKING_STACKS.md: the stacks on Apple's Developer CDs that work fully
+"""Write WORKING_STACKS.md: the stacks on the vendor's Developer CDs that work fully
 in RandomCard, from the results of the click_every_button test.
 
 usage: working_md.py DEVCDS_DIR OUT.md RESULTS.tsv [MORE.tsv ...] [--fixes FIXES.tsv]
@@ -22,7 +22,7 @@ import sys
 import urllib.parse
 
 # Externals RandomCard answers as stubs: Mac details that mean nothing today,
-# answered harmlessly (see XCMDS.md). Keep in step with src/runtime/externals.rs.
+# answered harmlessly (see EXTERNALS.md). Keep in step with src/runtime/externals.rs.
 STUBS = ['BoardInfo', 'INITFinder', 'SpinAbout', 'SwitchXRoo']
 
 
@@ -119,7 +119,7 @@ def main():
     fixed_rows = [row(r, fixes[r['path']]) for r in sorted(fixed, key=key)]
     out = [
         '# Stacks that work fully', '',
-        'Stacks from Apple\'s Developer CDs that open in RandomCard and survive a click on',
+        'Stacks from the vendor\'s Developer CDs that open in RandomCard and survive a click on',
         'every scripted button on every card without a single script error. The more',
         'stacks on this list, the better RandomCard is doing; see BUGHUNT.md for what',
         'keeps the others off it.', '',
@@ -128,8 +128,8 @@ def main():
         'in git), so the links work once that\'s in place. "Waited out" means a click ran',
         'into the two-second limit, usually an animation or a loop waiting for a key',
         'that a headless run can\'t press; worth a look by hand.', '',
-        'HyperCard 2.4.1\'s own stacks, from its installation disk, are tested the same',
-        'way and listed in [HYPERCARD_241_STACKS.md](HYPERCARD_241_STACKS.md).', '',
+        'Classic 2.4.1\'s own stacks, from its installation disk, are tested the same',
+        'way and listed in [CLASSIC_241_STACKS.md](CLASSIC_241_STACKS.md).', '',
         '**Marks:**', '',
         '- **\\*** works fully once its fix steps are applied to our copy, such as renaming',
         '  a call to an old external to RandomCard\'s built-in. These are listed in their',

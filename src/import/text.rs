@@ -1,11 +1,11 @@
-//! The text encodings of HyperCard stacks. A stack's text is in the Mac
+//! The text encodings of classic stacks. A stack's text is in the Mac
 //! OS script of the system it was made on: MacRoman for most, MacJapanese
-//! (Shift-JIS with Apple's additions) for stacks made with Japanese
-//! HyperCard under KanjiTalk. Everything comes into RandomCard as Unicode.
+//! (Shift-JIS with the vendor's additions) for stacks made with Japanese
+//! the classic app under KanjiTalk. Everything comes into RandomCard as Unicode.
 
 use super::MAC_ROMAN_HIGH;
 
-/// Mac OS text encodings, as Apple named them.
+/// The classic OS text encodings, as the vendor named them.
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
 pub enum TextEncoding {
     #[default]
@@ -23,14 +23,14 @@ impl TextEncoding {
         if ids.into_iter().any(|id| JAPANESE_FONTS.contains(&id)) { Self::MacJapanese } else { Self::MacRoman }
     }
 
-    /// Decode text, turning classic Mac carriage returns into newlines.
+    /// Decode text, turning classic carriage returns into newlines.
     pub fn decode(self, bytes: &[u8]) -> String {
         self.decode_with_positions(bytes).0
     }
 
-    /// Decode a script. HyperTalk's line continuation, option-return, is
+    /// Decode a script. xTalk's line continuation, option-return, is
     /// the byte MacRoman shows as ¬; MacJapanese shows it as the katakana
-    /// ﾂ, and HyperCard read it as a continuation there too.
+    /// ﾂ, and the classic app read it as a continuation there too.
     pub fn decode_script(self, bytes: &[u8]) -> String {
         let text = self.decode(bytes);
         match self {
@@ -88,7 +88,7 @@ fn mac_roman_char(b: u8) -> char {
     }
 }
 
-/// One character of MacJapanese and its length in bytes, by Apple's
+/// One character of MacJapanese and its length in bytes, by the vendor's
 /// mapping (JAPANESE.TXT): Shift-JIS, with ¥ at 0x5C, the backslash at
 /// 0x80, and ©, ™ and … at 0xFD–0xFF.
 fn mac_japanese_char(bytes: &[u8]) -> (char, usize) {

@@ -1,5 +1,5 @@
-//! Bitmap fonts a stack carries: classic Mac `FONT` and `NFNT` resources,
-//! as HyperCard stacks shipped them (Blah Blob!'s "Sprites" draws its
+//! Bitmap fonts a stack carries: classic `FONT` and `NFNT` resources,
+//! as classic stacks shipped them (Blah Blob!'s "Sprites" draws its
 //! levels as text). Each is one size of a family: per character, a strip
 //! of the font's bit image, its advance and its offset from the pen.
 //!

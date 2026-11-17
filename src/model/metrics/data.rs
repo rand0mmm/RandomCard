@@ -1,4 +1,4 @@
-// Generated from the classic Mac OS bitmap fonts' NFNT and FOND resources: only
+// Generated from the classic OS bitmap fonts' NFNT and FOND resources: only
 // their metrics, not the fonts. Widths are for MacRoman characters 32 to 255.
 
 use super::{FamilyStyles, FontMetrics};

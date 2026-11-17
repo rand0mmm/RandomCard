@@ -1,9 +1,9 @@
-//! Dates and times in HyperTalk formats. Like HyperCard, `the seconds` counts
+//! Dates and times in xTalk formats. Like the classic app, `the seconds` counts
 //! from midnight, January 1, 1904 (local time).
 
 use chrono::{Datelike, Local, NaiveDate, NaiveDateTime, NaiveTime, Timelike};
 
-use crate::hypertalk::ast::NameLength;
+use crate::lang::ast::NameLength;
 
 fn epoch() -> NaiveDateTime {
     NaiveDate::from_ymd_opt(1904, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap()
@@ -69,7 +69,7 @@ fn parse_date_part(s: &str) -> Option<NaiveDate> {
     None
 }
 
-/// Parse any date/time representation HyperTalk scripts commonly use.
+/// Parse any date/time representation xTalk scripts commonly use.
 pub fn parse_date(s: &str) -> Option<NaiveDateTime> {
     let s = s.trim();
     if s.is_empty() {
@@ -82,7 +82,7 @@ pub fn parse_date(s: &str) -> Option<NaiveDateTime> {
     if items.len() == 7 && items.iter().all(|i| i.parse::<i64>().is_ok()) {
         let n: Vec<i64> = items.iter().map(|i| i.parse().unwrap()).collect();
         let date = NaiveDate::from_ymd_opt(n[0] as i32, 1, 1)?;
-        // dateItems may overflow (e.g. month 13); normalize like HyperCard.
+        // dateItems may overflow (e.g. month 13); normalize like the classic app.
         let dt = date.and_hms_opt(0, 0, 0)?;
         let months = n[1] - 1;
         let dt = dt.checked_add_months(chrono::Months::new(months.max(0) as u32))?;

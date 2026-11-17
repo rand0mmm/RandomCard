@@ -1,5 +1,5 @@
 //! The stack RandomCard opens when started without a file: a short tour that
-//! doubles as a set of working HyperTalk examples.
+//! doubles as a set of working xTalk examples.
 
 use super::*;
 use styles::TextStyle;
@@ -133,7 +133,7 @@ fn tour_song() -> Vec<u8> {
 }
 
 /// The Tour's bitmap font, Tour Pixel: capitals, digits and a little
-/// punctuation, 5 × 7 pixels, as a classic Mac `FONT` resource (lowercase
+/// punctuation, 5 × 7 pixels, as a classic `FONT` resource (lowercase
 /// letters are drawn as capitals). Each row of a glyph is 5 bits.
 fn tour_pixel_font() -> Vec<u8> {
     let letters: [[u8; 7]; 26] = [
@@ -439,7 +439,7 @@ pub fn build() -> Stack {
     title.text_align = TextAlign::Center;
     title.text_style = "bold".into();
     b.card_part(c, title);
-    let mut sub = b.label("Subtitle", Rect::new(40, 64, 472, 86), "HyperCard, recreated in Rust", 15);
+    let mut sub = b.label("Subtitle", Rect::new(40, 64, 472, 86), "Classic card stacks, recreated in Rust", 15);
     sub.text_align = TextAlign::Center;
     sub.text_style = "italic".into();
     b.card_part(c, sub);
@@ -453,7 +453,7 @@ pub fn build() -> Stack {
     b.card_part(c, intro);
     let buttons = [
         ("Start with the Basics", "on mouseUp\n  visual effect dissolve\n  go to card \"Basics\"\nend mouseUp"),
-        ("Talk to Me", "on mouseUp\n  ask \"What is your name?\" with \"Bill Atkinson\"\n  if it is empty then exit mouseUp\n  answer \"Hello,\" && it & \"! Welcome to RandomCard.\" with \"Thanks\"\nend mouseUp"),
+        ("Talk to Me", "on mouseUp\n  ask \"What is your name?\" with \"Claude Shannon\"\n  if it is empty then exit mouseUp\n  answer \"Hello,\" && it & \"! Welcome to RandomCard.\" with \"Thanks\"\nend mouseUp"),
         ("Dice & Effects", "on mouseUp\n  visual effect checkerboard\n  go to card \"Dice\"\nend mouseUp"),
         ("Draw Something", "on mouseUp\n  visual effect wipe left\n  go to card \"Drawing\"\nend mouseUp"),
         ("Animation", "on mouseUp\n  visual effect venetian blinds\n  go to card \"Animation\"\nend mouseUp"),
@@ -481,9 +481,9 @@ pub fn build() -> Stack {
         b.card_part(c, p);
     }
 
-    // ----- HyperTalk basics -----
+    // ----- xTalk basics -----
     let c = b.card(main, "Basics");
-    let t = b.label("Heading", Rect::new(20, 10, 492, 36), "HyperTalk in a nutshell", 20);
+    let t = b.label("Heading", Rect::new(20, 10, 492, 36), "xTalk in a nutshell", 20);
     b.card_part(c, {
         let mut t = t;
         t.text_style = "bold".into();
@@ -519,7 +519,7 @@ pub fn build() -> Stack {
     places.script = "on mouseUp\n  if the selectedText is empty then exit mouseUp\n  visual effect dissolve\n  go to card (the selectedText)\nend mouseUp".into();
     b.card_part(c, places);
     let basics = [
-        ("Say Hello", "on mouseUp\n  ask \"What is your name?\" with \"Dan Winkler\"\n  if the result is \"Cancel\" then exit mouseUp\n  answer \"Hello,\" && it & \"!\"\nend mouseUp"),
+        ("Say Hello", "on mouseUp\n  ask \"What is your name?\" with \"Alan Turing\"\n  if the result is \"Cancel\" then exit mouseUp\n  answer \"Hello,\" && it & \"!\"\nend mouseUp"),
         ("Count Words", "on mouseUp\n  put the number of words in field \"Lesson\" into n\n  answer \"The lesson has\" && plural(n, \"word\") && \"in\" && plural(the number of lines in field \"Lesson\", \"line\") & \".\"\nend mouseUp"),
         ("Chunks", "on mouseUp\n  put \"apple,banana,cherry\" into fruits\n  put item 2 of fruits into fruit\n  answer \"The second fruit is\" && fruit & \", which starts with\" && quote & char 1 of fruit & quote & \".\"\nend mouseUp"),
         ("Do Some Math", "on mouseUp\n  put 0 into total\n  repeat with i = 1 to 100\n    add i to total\n  end repeat\n  answer \"1 + 2 + ... + 100 =\" && total & return & \"The square root of 2 is\" && sqrt(2)\nend mouseUp"),
@@ -536,7 +536,7 @@ pub fn build() -> Stack {
     let c = b.card(main, "Dice");
     let t = b.label("Heading", Rect::new(20, 10, 492, 36), "Roll the dice", 20);
     b.card_part(c, t);
-    // AddColor colors the dice, as HyperCard 2.2's AddColor did.
+    // AddColor colors the dice, as classic 2.2's AddColor did.
     let colors = [[255, 205, 205], [205, 222, 255]];
     for (i, name) in ["Die 1", "Die 2"].iter().enumerate() {
         let x = 120 + i as i32 * 150;
@@ -726,7 +726,7 @@ on mouseUp
 end mouseUp"#,
     );
     b.card_part(c, Part { style: PartStyle::Standard, ..files });
-    // AddColor, HyperCard 2's Color Tools: color rectangles behind the
+    // AddColor, classic 2's Color Tools: color rectangles behind the
     // black-and-white picture, which color only its white.
     let addcolor = b.button(
         "Color the House",
@@ -759,7 +759,7 @@ end mouseUp"#,
         "on mouseUp\n  choose pencil tool\n  doMenu \"FatBits\"\n  put \"FatBits: draw pixel by pixel. Alt-drag or scroll to move around; choose FatBits again, or the hand, to stop.\"\nend mouseUp",
     );
     b.card_part(c, Part { style: PartStyle::Standard, ..fat });
-    // HyperCard's Options: Draw Multiple and Draw Centered together leave
+    // The classic app's Options: Draw Multiple and Draw Centered together leave
     // rings growing out from one point, and Grid lines things up.
     let options = b.button(
         "Draw Multiple",
@@ -798,7 +798,7 @@ end mouseUp"#,
         "on mouseUp\n  choose brush tool\n  set the brush to 5\n  put \"Move over the card: the pointer is the brush, at its real size. Double-click the brush on the Tools palette for others.\" into msg\nend mouseUp",
     );
     b.card_part(c, Part { style: PartStyle::Standard, ..cursor });
-    // Beyond HyperCard: the spray can's size and density.
+    // Beyond the classic app: the spray can's size and density.
     let spray = b.button(
         "Spray Sizes",
         Rect::new(372, 100, 492, 122),
@@ -897,7 +897,7 @@ end mouseUp"#,
     ball.hilite = true;
     ball.auto_hilite = false;
     b.card_part(c, ball);
-    // ZoomRect, the Finder's zoom, from a 1989 XCMD now built in.
+    // ZoomRect, the Finder's zoom, from a 1989 external command now built in.
     // Beside Contents, in the navigation row and its style.
     let mut zoom = b.button("Zoom", Rect::new(190, 314, 256, 336), "on mouseUp\n  zoomRect the rect of me, \"40,96,472,290\"\n  zoomRect \"40,96,472,290\", the rect of me\nend mouseUp");
     zoom.style = PartStyle::RoundRect;
@@ -989,7 +989,7 @@ end showState
     );
     b.card_part(c, guide);
 
-    // ----- Sound channels and songs: HyperCard 2.4's eight channels, the
+    // ----- Sound channels and songs: classic 2.4's eight channels, the
     // soundVolume, and a song (a soundtracker module, as PlayMOD played).
     let c = b.card(main, "Channels");
     let t = b.label("Heading", Rect::new(20, 10, 492, 36), "Sound channels and songs", 20);
@@ -997,7 +997,7 @@ end showState
     let about = b.label(
         "About",
         Rect::new(20, 42, 492, 108),
-        "HyperCard 2.4 played sounds on eight channels at once: Play Both puts the tune on channel 1 and a bass line on channel 2. Songs are soundtracker modules, as games played them with the PlayMOD external, looping beside everything else. The Volume slider is RandomCard's own.",
+        "Classic 2.4 stacks played sounds on eight channels at once: Play Both puts the tune on channel 1 and a bass line on channel 2. Songs are soundtracker modules, as games played them with the PlayMOD external, looping beside everything else. The Volume slider is RandomCard's own.",
         12,
     );
     b.card_part(c, about);
@@ -1019,7 +1019,7 @@ end showState
         let p = b.button(name, Rect::new(x, y, x + 140, y + 28), script);
         b.card_part(c, p);
     }
-    // A slider, which HyperCard never had: its contents is its value, and
+    // A slider, which the classic app never had: its contents is its value, and
     // sliderMoved comes as it's dragged.
     let mut slider = b.button(
         "Volume",
@@ -1044,7 +1044,7 @@ end showState
     let about = b.label(
         "About",
         Rect::new(20, 42, 492, 92),
-        "HyperCard 2.4 played QuickTime movies with its Movie command, and RandomCard plays today's (MOV, MP4, M4V, MPEG) the same way. Click the movie to pause it; double-click to play.",
+        "Classic 2.4 stacks played QuickTime movies with its Movie command, and RandomCard plays today's (MOV, MP4, M4V, MPEG) the same way. Click the movie to pause it; double-click to play.",
         12,
     );
     b.card_part(c, about);
@@ -1069,7 +1069,7 @@ end showState
     }
     let said = b.label("Movie Messages", Rect::new(286, 256, 492, 300), "", 11);
     b.card_part(c, said);
-    // The movie messages HyperCard 2.4 sent the card, and closing the movie
+    // The movie messages classic 2.4 sent the card, and closing the movie
     // on leaving: movie windows stay open from card to card.
     b.stack.cards[c].script = r#"on openMovie name, id
   put "openMovie" && name into field "Movie Messages"
@@ -1173,7 +1173,7 @@ end idle
         (
             "Scrolling",
             Rect::new(262, 184, 492, 296),
-            "A scrolling field has a scroll bar, for more text than fits.\n\nHyperCard came out in August 1987, free with every Mac.\n\nBill Atkinson wrote it; Dan Winkler wrote HyperTalk.\n\nStacks were shared on floppy disks and bulletin boards.\n\nMyst began as a HyperCard stack.\n\nThe last version, HyperCard 2.4, came out in 1998.",
+            "A scrolling field has a scroll bar, for more text than fits.\n\nCard stacks came out in 1987, free with every computer of their kind.\n\nEach card holds buttons, fields and pictures; scripts make them work.\n\nStacks were shared on floppy disks and bulletin boards.\n\nMyst began as a card stack.\n\nThe last classic version, 2.4, came out in 1998.",
         ),
     ];
     for (name, rect, text) in fields {
@@ -1276,7 +1276,7 @@ end mouseUp"#,
     let about = b.label(
         "About",
         Rect::new(20, 68, 492, 106),
-        "That's Tour Pixel, a bitmap font this stack carries, drawn pixel for pixel as HyperCard stacks shipped theirs. Choose a color and a size, then ask.",
+        "That's Tour Pixel, a bitmap font this stack carries, drawn pixel for pixel as classic stacks shipped theirs. Choose a color and a size, then ask.",
         12,
     );
     b.card_part(c, about);
@@ -1332,7 +1332,7 @@ end mouseUp"#,
         ("Print Card", "on mouseUp\n  print card\nend mouseUp"),
         ("Print Stack", "on mouseUp\n  print all cards\nend mouseUp"),
         ("Print Some Text", "on mouseUp\n  print \"Hello from RandomCard!\" & return & return & \"Printed on\" && the long date & \".\"\nend mouseUp"),
-        ("Find Bill", "on mouseUp\n  visual effect dissolve\n  find \"Bill\"\nend mouseUp"),
+        ("Find Claude", "on mouseUp\n  visual effect dissolve\n  find \"Claude\"\nend mouseUp"),
         ("Find…", "on mouseUp\n  doMenu \"Find…\"\nend mouseUp"),
         ("Recent", "on mouseUp\n  doMenu \"Recent\"\nend mouseUp"),
         // `open`: a document in the program the system picks.
@@ -1348,14 +1348,14 @@ end mouseUp"#,
         b.card_part(c, p);
     }
 
-    // ----- HyperCard's icons -----
+    // ----- the classic app's icons -----
     let c = b.card(main, "Icons");
     let t = b.label("Heading", Rect::new(20, 10, 492, 36), "Buttons and icons", 20);
     b.card_part(c, t);
     let about = b.label(
         "About",
         Rect::new(20, 42, 492, 76),
-        "HyperCard's own icons are built in. Give a button one in its Info window, or by name from a script.",
+        "The classic icons are built in. Give a button one in its Info window, or by name from a script.",
         12,
     );
     b.card_part(c, about);
@@ -1368,7 +1368,7 @@ end mouseUp"#,
         let x = 60 + i as i32 * 130;
         let mut p = b.button(name, Rect::new(x, 96, x + 90, 160), script);
         p.style = PartStyle::Transparent;
-        if let Some((id, art)) = crate::import::hypercard_icon(icon) {
+        if let Some((id, art)) = crate::import::builtin_icon(icon) {
             p.icon = id;
             b.stack.icons.insert(id, art);
         }
@@ -1535,7 +1535,7 @@ end mouseUp"#,
     let about = b.label(
         "About",
         Rect::new(20, 42, 492, 90),
-        "A palette floats over the cards, and each of its buttons sends a message. HyperCard stacks keep theirs as resources, and RandomCard brings them along. Show this one, then go to another card: it stays. Scripts move the Tools palette too.",
+        "A palette floats over the cards, and each of its buttons sends a message. Classic stacks keep theirs as resources, and RandomCard brings them along. Show this one, then go to another card: it stays. Scripts move the Tools palette too.",
         12,
     );
     b.card_part(c, about);
@@ -1549,7 +1549,7 @@ end mouseUp"#,
         let p = b.button(name, Rect::new(36, y, 176, y + 28), script);
         b.card_part(c, p);
     }
-    // RandomCard's own palette, moved and shown by scripts as HyperCard's
+    // RandomCard's own palette, moved and shown by scripts as the classic app's
     // Tools palette was.
     let own_palettes = [
         (
@@ -1558,7 +1558,7 @@ end mouseUp"#,
         ),
         (
             "Hide the Tools",
-            "on mouseUp\n  if the visible of tool window then\n    hide tool window\n    set the name of me to \"Show the Tools\"\n    put \"hide tool window (or Ctrl+T)\" into field \"Said\"\n  else\n    show tool window\n    set the name of me to \"Hide the Tools\"\n    put \"show tool window: HyperCard's show pattern window shows it too\" into field \"Said\"\n  end if\nend mouseUp",
+            "on mouseUp\n  if the visible of tool window then\n    hide tool window\n    set the name of me to \"Show the Tools\"\n    put \"hide tool window (or Ctrl+T)\" into field \"Said\"\n  else\n    show tool window\n    set the name of me to \"Hide the Tools\"\n    put \"show tool window: the classic show pattern window shows it too\" into field \"Said\"\n  end if\nend mouseUp",
         ),
     ];
     for (i, (name, script)) in own_palettes.iter().enumerate() {
@@ -1566,7 +1566,7 @@ end mouseUp"#,
         let p = b.button(name, Rect::new(196, y, 336, y + 28), script);
         b.card_part(c, p);
     }
-    // HyperCard's pattern editor, from Edit… beside the palette's pattern.
+    // The classic app's pattern editor, from Edit… beside the palette's pattern.
     let edit = b.button(
         "Edit a Pattern",
         Rect::new(346, 110, 476, 138),
@@ -1580,14 +1580,14 @@ end mouseUp"#,
         "on mouseUp\n  choose regular polygon tool\n  put the polySides into oldSides\n  repeat with i = 1 to 6\n    set the polySides to item i of \"3,4,5,6,8,12\"\n    put \"Regular Polygon:\" && the polySides && \"sides. Watch its icon on the Tools palette.\" into field \"Said\"\n    wait 30 ticks\n  end repeat\n  set the polySides to oldSides\n  put \"Each tool's icon shows its setting. Double-click a tool with a corner mark for its choices.\" into field \"Said\"\nend mouseUp",
     );
     b.card_part(c, icons);
-    // As in HyperCard, the Paint menu's commands need a selection.
+    // As in the classic app, the Paint menu's commands need a selection.
     let menu = b.button(
         "Paint Menu",
         Rect::new(346, 186, 476, 214),
         "on mouseUp\n  choose select tool\n  doMenu \"Select All\"\n  put \"All selected: the Paint menu's commands are active now. Click the card and they grey out again.\" into field \"Said\"\nend mouseUp",
     );
     b.card_part(c, menu);
-    // Peeking, as in HyperCard, finds a button you can't see.
+    // Peeking, as in the classic app, finds a button you can't see.
     let keys = if cfg!(target_os = "macos") { "Command-Option (⌘⌥)" } else { "Ctrl+Alt" };
     let peek = b.button(
         "Peek",
@@ -1735,7 +1735,7 @@ end mouseUp"#,
     reply.text_size = 9;
     b.card_part(c, reply);
 
-    // ----- Japanese: stacks from HyperCard J come in as Unicode, drawn in
+    // ----- Japanese: stacks from the Japanese classic edition come in as Unicode, drawn in
     // the system's Japanese font. Nothing on the card is Japanese until a
     // button puts it there, so the font loads only then.
     let c = b.card(main, "Japanese");
@@ -1744,7 +1744,7 @@ end mouseUp"#,
     let about = b.label(
         "About",
         Rect::new(20, 42, 492, 112),
-        "Apple sold HyperCard J in Japan, and its stacks keep their text in Shift-JIS. RandomCard imports them as Unicode and draws Japanese in your system's Japanese font, loaded the first time Japanese appears. Click a button, or type in the field with a Japanese input method.",
+        "A Japanese edition of the classic app was sold in Japan, and its stacks keep their text in Shift-JIS. RandomCard imports them as Unicode and draws Japanese in your system's Japanese font, loaded the first time Japanese appears. Click a button, or type in the field with a Japanese input method.",
         12,
     );
     b.card_part(c, about);
@@ -1812,7 +1812,7 @@ end mouseUp"#,
     let people = [
         ("Grace Hopper", "555-0199", "Invented the first compiler.\nFound an actual bug (a moth) in the Harvard Mark II."),
         ("Ada Lovelace", "555-0100", "Wrote the first published algorithm, for Babbage's Analytical Engine."),
-        ("Bill Atkinson", "555-0187", "Created HyperCard in 1987, along with MacPaint and QuickDraw."),
+        ("Claude Shannon", "555-0187", "Founded information theory in 1948.\nBuilt a maze-solving mechanical mouse, Theseus."),
     ];
     for (name, phone, note) in people {
         let c = b.card(addr, name);
@@ -1825,7 +1825,7 @@ end mouseUp"#,
 }
 
 /// The rainbow Color the House puts in the sky: an AddColor picture, as
-/// HyperCard stacks kept them in PICT resources, on white that AddColor
+/// classic stacks kept them in PICT resources, on white that AddColor
 /// leaves see-through.
 fn rainbow() -> Picture {
     const BANDS: [[u8; 4]; 6] = [
@@ -1862,7 +1862,7 @@ pub fn builtin_movie(name: &str) -> Option<(&'static str, &'static [u8])> {
 
 #[cfg(test)]
 mod tests {
-    use crate::hypertalk::parser::parse_script;
+    use crate::lang::parser::parse_script;
 
     #[test]
     fn tour_song_and_font() {

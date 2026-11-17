@@ -1,4 +1,4 @@
-//! Classic QuickTime movies in 256 colors (Apple's Graphics codec, for one)
+//! Classic QuickTime movies in 256 colors (the vendor's Graphics codec, for one)
 //! can carry their own color table. GStreamer decodes them with the
 //! standard Mac palette instead, so their colors come out wrong. Both are
 //! tables of 256 colors, so each standard color names a color number, and
@@ -140,7 +140,7 @@ mod tests {
     fn a_movies_own_colors() {
         // A movie with no color table of its own (the Tour's, in H.264).
         assert!(remap_for(Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/src/model/tour_movie/Card Trick.mp4"))).is_none());
-        // HyperCard 2.4's Simple Movie: its black Q is standard color 125.
+        // Classic 2.4's Simple Movie: its black Q is standard color 125.
         let simple = Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/apple/hypercard_241_stacks/HyperCard Stacks/Simple Movie"));
         if simple.exists() {
             let map = remap_for(simple).expect("a color table");

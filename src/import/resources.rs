@@ -1,5 +1,5 @@
 //! Classic Mac resource forks: finding them on file systems that have no
-//! forks, parsing the resource map, and decoding HyperCard's button icons.
+//! forks, parsing the resource map, and decoding the classic app's button icons.
 
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
@@ -85,14 +85,14 @@ pub fn find_resource_fork(path: &Path, bytes: &[u8]) -> Option<Vec<u8>> {
     None
 }
 
-/// Resource forks further along HyperCard's resource chain: a Home stack or
-/// the HyperCard application next to the stack, then any resource files the
-/// user keeps in `~/.config/randomcard/resources/` (for example HyperCard's
+/// Resource forks further along the classic app's resource chain: a Home stack or
+/// the classic application next to the stack, then any resource files the
+/// user keeps in `~/.config/randomcard/resources/` (for example the classic app's
 /// own fork, which holds the standard icons).
 pub fn chain_forks(path: &Path) -> Vec<Vec<u8>> {
     let mut forks = Vec::new();
     let dir = path.parent().unwrap_or(Path::new("."));
-    for name in ["Home", "HyperCard", "HyperCard Player"] {
+    for name in ["Home", "HyperCard", "HyperCard Player"] { // legacy-compat: file names of resource files on disk
         let sibling = dir.join(name);
         if sibling == path {
             continue;
@@ -174,7 +174,7 @@ fn parse_inner(fork: &[u8], enc: TextEncoding) -> Option<Vec<Resource<'_>>> {
     Some(out)
 }
 
-/// Decode a 32×32 'ICON'. HyperCard draws icons with a mask made by
+/// Decode a 32×32 'ICON'. The classic app draws icons with a mask made by
 /// flood-filling white from the edges: white enclosed by black stays opaque.
 pub fn decode_icon(data: &[u8], name: &str) -> Option<Icon> {
     let bits = data.get(..128)?;
@@ -196,13 +196,13 @@ pub fn decode_icon(data: &[u8], name: &str) -> Option<Icon> {
     Some(Icon { name: name.to_string(), picture: pic })
 }
 
-/// HyperCard's built-in icons, from the HyperCard application and its Home
-/// stack, by id. Stacks used them freely, since every copy of HyperCard had
+/// The classic app's built-in icons, from the classic application and its Home
+/// stack, by id. Stacks used them freely, since every copy of the classic app had
 /// them; they're the last place an icon is looked for.
-pub fn hypercard_icons() -> &'static BTreeMap<i32, Icon> {
+pub fn builtin_icons() -> &'static BTreeMap<i32, Icon> {
     static ICONS: std::sync::OnceLock<BTreeMap<i32, Icon>> = std::sync::OnceLock::new();
     ICONS.get_or_init(|| {
-        include_str!("hypercard_icons.txt")
+        include_str!("builtin_icons.txt")
             .lines()
             .filter(|l| !l.starts_with('#'))
             .filter_map(|l| {
@@ -218,10 +218,10 @@ pub fn hypercard_icons() -> &'static BTreeMap<i32, Icon> {
     })
 }
 
-/// One of HyperCard's built-in icons, by id or name (ignoring case).
-pub fn hypercard_icon(id_or_name: &str) -> Option<(i32, Icon)> {
+/// One of the classic app's built-in icons, by id or name (ignoring case).
+pub fn builtin_icon(id_or_name: &str) -> Option<(i32, Icon)> {
     let t = id_or_name.trim();
-    let icons = hypercard_icons();
+    let icons = builtin_icons();
     if let Ok(id) = t.parse::<i32>() {
         return icons.get(&id).map(|i| (id, i.clone()));
     }
@@ -424,7 +424,7 @@ const IMA_STEPS: [i32; 89] = [
 ];
 const IMA_INDEX: [i32; 16] = [-1, -1, -1, -1, 2, 4, 6, 8, -1, -1, -1, -1, 2, 4, 6, 8];
 
-/// Apple IMA4: 34-byte packets of 64 samples, one packet per channel in turn.
+/// The vendor IMA4: 34-byte packets of 64 samples, one packet per channel in turn.
 fn decode_ima4(body: &[u8], channels: usize) -> Vec<i16> {
     let packets = body.len() / 34 / channels;
     let mut per_channel: Vec<Vec<i32>> = vec![Vec::with_capacity(packets * 64); channels];

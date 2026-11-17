@@ -73,7 +73,7 @@ impl World {
         }
     }
 
-    /// What's been painted since `begin_painting`: HyperCard's new element.
+    /// What's been painted since `begin_painting`: the classic app's new element.
     pub fn new_element(&self) -> Option<crate::paint::Region> {
         let from = self.painted_from.as_ref().filter(|p| self.is_this_layer(p))?;
         let now = match from.layer {

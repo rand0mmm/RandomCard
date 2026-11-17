@@ -1,4 +1,4 @@
-//! The HyperTalk language: lexer, parser, syntax tree, values and chunks.
+//! The xTalk language: lexer, parser, syntax tree, values and chunks.
 
 pub mod ast;
 pub mod chunk;

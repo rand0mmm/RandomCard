@@ -355,7 +355,7 @@ impl App {
                 }
             }
             if m.rate != before && !scrubbed && !scrubbing {
-                messages.push(("movieRateChanged", vec![m.name.clone(), m.id.to_string(), crate::hypertalk::value::format_number(m.rate, "0.####")]));
+                messages.push(("movieRateChanged", vec![m.name.clone(), m.id.to_string(), crate::lang::value::format_number(m.rate, "0.####")]));
             }
         }
         for (message, args) in messages {

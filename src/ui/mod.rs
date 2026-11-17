@@ -385,7 +385,7 @@ impl App {
 
     /// The menus as the menu bar shows them, from the world's menus (which
     /// scripts can change). Built-in menus and items appear only when the
-    /// user level and tool allow them, as HyperCard showed only what each
+    /// user level and tool allow them, as the classic app showed only what each
     /// level unlocks.
     fn shown_menus(&self) -> Vec<menus::ShownMenu> {
         // Asked first: it looks at the world itself.
@@ -657,7 +657,7 @@ impl App {
         for r in requests {
             match r {
                 UiRequest::OpenStack => {
-                    // RandomCard's stacks or HyperCard's, which usually have
+                    // RandomCard's stacks or the classic app's, which usually have
                     // no extension, so every file shows unless narrowed.
                     if let Some(path) = self
                         .stack_dialog()
@@ -871,7 +871,7 @@ impl App {
         self.send(Event::OpenFile(path.to_path_buf()));
     }
 
-    /// Grow the window when a stack's cards don't fit in it, as HyperCard
+    /// Grow the window when a stack's cards don't fit in it, as the classic app
     /// sized its window to each stack's cards; never past the screen, and
     /// never smaller (the extra is room for the tools and message box, as
     /// at startup).
@@ -918,7 +918,7 @@ impl App {
 
     /// A card window behind the front one: its card as it was last seen,
     /// with a gray frame. Pressing it brings it forward; the press does
-    /// nothing else, as clicking an inactive window didn't in HyperCard.
+    /// nothing else, as clicking an inactive window didn't in the classic app.
     fn behind_canvas(&mut self, ui: &mut egui::Ui, key: u32) {
         let size = match self.behind.get(&key) {
             Some((s, _)) => Vec2::new(s.width as f32, s.height as f32),
@@ -1027,7 +1027,7 @@ impl App {
         ctx.send_viewport_cmd(egui::ViewportCommand::Close);
     }
 
-    /// HyperCard saves changes automatically; so do we, once a stack has a file.
+    /// The classic app saves changes automatically; so do we, once a stack has a file.
     fn autosave(&mut self) {
         // Stacks in windows behind the current one, left with changes.
         let behind: Vec<(std::path::PathBuf, Result<String, String>)> = {
@@ -1071,7 +1071,7 @@ impl App {
 
     // ----- keyboard -----
 
-    /// The keys held now, for `the keysDown`, by HyperCard's names.
+    /// The keys held now, for `the keysDown`, by the classic app's names.
     fn publish_keys_down(&mut self, ctx: &egui::Context) {
         let (keys, mods) = ctx.input(|i| (i.keys_down.clone(), i.modifiers));
         let mut names: Vec<String> = keys.iter().filter_map(|k| key_name(*k)).collect();
@@ -1301,7 +1301,7 @@ impl App {
         }
     }
 
-    /// HyperCard's keyboard messages. Keys are only held back from the text
+    /// The classic app's keyboard messages. Keys are only held back from the text
     /// editor for scripts that handle the message; otherwise typing stays
     /// immediate.
     fn keyboard(&mut self, ctx: &egui::Context) {
@@ -1477,7 +1477,7 @@ impl App {
     }
 
     /// Tab: move to the next unlocked, visible field (background fields
-    /// first, then card fields), selecting its text, as HyperCard does.
+    /// first, then card fields), selecting its text, as the classic app does.
     fn next_field(&mut self) {
         let Some(scene) = &self.last_scene else { return };
         let fields: Vec<(ObjRef, String)> = scene
@@ -1547,7 +1547,7 @@ impl App {
                     }
                 }
                 None if resp.drag_started_by(PointerButton::Primary) && resp.ctx.input(|i| i.modifiers.command) => {
-                    // Command-drag creates a new part, as in HyperCard.
+                    // Command-drag creates a new part, as in the classic app.
                     let obj = self.create_part(kind, CardRect::new(p.0, p.1, p.0 + 1, p.1 + 1));
                     self.selected = Some(obj);
                     self.part_drag =
@@ -1921,11 +1921,11 @@ impl App {
             })
         } else {
             ui.scope_builder(egui::UiBuilder::new().max_rect(text_rect), |ui| {
-                // Typing stays inside the field, as HyperCard drew it.
+                // Typing stays inside the field, as the classic app drew it.
                 ui.set_clip_rect(rect.shrink(1.0).intersect(ui.clip_rect()));
                 if part.dont_wrap {
                     // Long lines scroll sideways to follow the insertion
-                    // point while typing; HyperCard only cut them off.
+                    // point while typing; the classic app only cut them off.
                     egui::ScrollArea::horizontal()
                         .id_salt(("dont-wrap", field_edit_id(e.obj)))
                         .scroll_bar_visibility(egui::scroll_area::ScrollBarVisibility::AlwaysHidden)
@@ -2344,7 +2344,7 @@ impl App {
             }
         }
 
-        // Peeking, as in HyperCard: holding Command-Option outlines the
+        // Peeking, as in the classic app: holding Command-Option outlines the
         // buttons, so a transparent or tiny one can be found, and adding
         // Shift outlines the fields too. Not in a Can't Peek stack.
         let (peek, peek_fields) = ctx.input(|i| {
@@ -2384,7 +2384,7 @@ impl App {
                     .id(egui::Id::unique("message-box"))
                     .font(egui::TextStyle::Monospace)
                     .desired_width(f32::INFINITY)
-                    .hint_text("Type HyperTalk here and press Return, e.g.  go next card"),
+                    .hint_text("Type a script command here and press Return, e.g.  go next card"),
             );
             if self.focus_msg_box {
                 // Blind typing: continue in the message box, at the end.
@@ -2573,7 +2573,7 @@ fn show_field_text(ui: &mut egui::Ui, pv: &render::PartView, origin: Pos2, found
     render::paint_field_text(ui.painter(), pv, galley, pos, text_rect.width(), found);
 }
 
-/// F1–F12 as HyperCard function key numbers.
+/// F1–F12 as classic function key numbers.
 fn function_key(key: Key) -> Option<u32> {
     let keys = [
         Key::F1,
@@ -2720,7 +2720,7 @@ impl eframe::App for App {
     }
 }
 
-/// A key's name in `the keysDown`: HyperCard's (`left`, `return`, `tab`…
+/// A key's name in `the keysDown`: the classic app's (`left`, `return`, `tab`…
 /// as arrowKey, returnKey and tabKey call them), letters and digits as
 /// typed, F1 to F15.
 fn key_name(key: Key) -> Option<String> {

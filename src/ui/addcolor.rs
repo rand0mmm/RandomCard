@@ -1,4 +1,4 @@
-//! Drawing AddColor. HyperCard 2.x's AddColor painted its colors over the
+//! Drawing AddColor. Classic 2.x's AddColor painted its colors over the
 //! black-and-white card in "darken" mode: black stays black and white takes
 //! the color. RandomCard does the same by coloring the white of the card's
 //! pictures from a color map, and filling opaque parts with their color.

@@ -1740,9 +1740,9 @@ def build():
     p.append(field('Shows', (40, 260, 800, 500),
                    'Each card is a button whose icon is the card\'s face, or its back: icons of any size, in '
                    'color, changed by the script as cards turn over.\n'
-                   'Dragging is HyperTalk: repeat while the mouse is down, moving the cards to the mouseLoc, '
+                   'Dragging is xTalk: repeat while the mouse is down, moving the cards to the mouseLoc, '
                    'and setting their partNumber to bring them to the front.\n'
-                   'Each game\'s rules are its card\'s own script, in plain HyperTalk, and what the games share '
+                   'Each game\'s rules are its card\'s own script, in plain xTalk, and what the games share '
                    '(the shuffle, the record, the win) is in the stack script: choose Objects ▸ Card Script or '
                    'Stack Script to read them.\n'
                    'A game in progress is kept in hidden fields, so it\'s saved with the stack, and Undo goes '

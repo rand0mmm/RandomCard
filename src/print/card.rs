@@ -1,5 +1,5 @@
 //! Drawing a card onto a PDF page: its pictures as 1-bit images, its
-//! buttons and fields as vector shapes, and text placed by HyperCard's
+//! buttons and fields as vector shapes, and text placed by the classic app's
 //! metrics, in the card's own coordinates.
 
 use std::fmt::Write;
@@ -145,7 +145,7 @@ impl Canvas<'_> {
                 let base = pdf_font(&p.font, &p.style);
                 let font = self.doc.font(base);
                 let (px, py) = (x + p.x, y + line.baseline);
-                // Stretch or squeeze the word to the width it had in HyperCard.
+                // Stretch or squeeze the word to the width it had in the classic app.
                 let word = p.text.trim_end();
                 let theirs = metrics::metrics(&p.font, p.size, &p.style).text_width(word);
                 let ours = pdf_text_width(base, word) * p.size as f32;
@@ -191,7 +191,7 @@ fn pdf_text_width(base: &str, text: &str) -> f32 {
     units as f32 / 1000.0 * scale
 }
 
-/// The standard PDF font nearest a Macintosh font and style.
+/// The standard PDF font nearest a classic font and style.
 fn pdf_font(font: &str, style: &str) -> &'static str {
     let f = font.to_ascii_lowercase();
     let bold = styles::has_style(style, "bold");
@@ -350,7 +350,7 @@ fn draw_button(c: &mut Canvas, stack: &Stack, card: Id, layer: Layer, p: &Part) 
     if has_icon {
         let label_lines =
             (p.show_name && !label.is_empty()).then(|| one_line(TextAlign::Left, &label, 9, "Geneva", "plain", 0.0));
-        // An icon is drawn at its own size (HyperCard's are 32×32).
+        // An icon is drawn at its own size (the classic app's are 32×32).
         let icon = stack.icons.get(&p.icon);
         let (iw, ih) = icon.map_or((32.0, 32.0), |i| (i.picture.width as f32, i.picture.height as f32));
         let block = ih + label_lines.as_ref().map_or(2.0, |l| 2.0 + l[0].height);
@@ -463,7 +463,7 @@ fn text_rect(p: &Part) -> Rect {
     Rect::new(r.left + 4 + 5 * wide, r.top + 1 + 4 * wide, r.right - right, r.bottom - bottom)
 }
 
-/// A field's text on a card, laid out in lines as HyperCard wrapped it.
+/// A field's text on a card, laid out in lines as the classic app wrapped it.
 pub fn field_lines(stack: &Stack, card: Id, layer: Layer, p: &Part) -> Vec<Line> {
     let text = stack.field_text(card, layer, p.id);
     let runs: Vec<StyleRun> = stack.field_styles(card, layer, p.id);

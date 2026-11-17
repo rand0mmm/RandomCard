@@ -1,21 +1,21 @@
-"""Build a Basilisk II setup for installing and running HyperCard 2.4.1.
+"""Build a Basilisk II setup for installing and running classic 2.4.1.
 
-Basilisk II emulates a 68040 Macintosh (here a Quadra 650), which runs System
-7.5 and the last HyperCard. This makes the disks and two configurations:
+Basilisk II emulates a 68040 classic computer (here a Quadra 650), which runs System
+7.5 and the last classic app. This makes the disks and two configurations:
 
   install.prefs  boots System 7.5.3's Disk Tools 1 floppy, with the System
                  7.5.3 installer, the 7.5.5 update floppies
-                 and the HyperCard 2.4.1 install disk, and a blank hard disk
+                 and the classic 2.4.1 install disk, and a blank hard disk
                  to install onto
   run.prefs      boots the hard disk once everything is installed, with the
                  the Developer CD stacks
 
-usage: basilisk.py APPLE_DIR OUT_DIR
+usage: basilisk.py SOURCE_DIR OUT_DIR
 
 To add a game or other disk later, put a .dsk in OUT_DIR/extras (to_dsk.py
 turns a .sit or old disk image into one); run.sh mounts them all.
 
-APPLE_DIR holds 7_5_3.sit, 7_5_5.sit, hypercard-2.4.1/HyperCard241.dsk,
+SOURCE_DIR holds 7_5_3.sit, 7_5_5.sit, hypercard-2.4.1/HyperCard241.dsk, # legacy-compat: downloaded file names
 Old_World_Mac_Roms and, optionally, Risk_II.img_.sit. Needs unar, and Python
 with machfs.
 """
@@ -43,13 +43,13 @@ def ndif(image, out):
 
 
 def main():
-    apple, out = (os.path.abspath(a) for a in sys.argv[1:3])
+    src_dir, out = (os.path.abspath(a) for a in sys.argv[1:3])
     work = os.path.join(out, 'work')
     disks = os.path.join(out, 'disks')
     os.makedirs(work, exist_ok=True)
     os.makedirs(disks, exist_ok=True)
-    unar(os.path.join(apple, '7_5_3.sit'), os.path.join(work, '753'))
-    unar(os.path.join(apple, '7_5_5.sit'), os.path.join(work, '755'))
+    unar(os.path.join(src_dir, '7_5_3.sit'), os.path.join(work, '753'))
+    unar(os.path.join(src_dir, '7_5_5.sit'), os.path.join(work, '755'))
     src753 = os.path.join(work, '753', '7.5.3')
 
     # The System 7.5.3 installer: a compressed Disk Copy 6 image.
@@ -73,12 +73,12 @@ def main():
         data = open(os.path.join(floppies, f'System 7.5.5 Update - {n}'), 'rb').read()
         open(os.path.join(disks, f'System 7.5.5 Update {n}.dsk'), 'wb').write(data[84 : 84 + 1474560])
 
-    # HyperCard 2.4.1's install disk is a plain HFS image.
-    shutil.copy2(os.path.join(apple, 'hypercard-2.4.1', 'HyperCard241.dsk'), os.path.join(disks, 'HyperCard 2.4.1.dsk'))
+    # Classic 2.4.1's install disk is a plain HFS image.
+    shutil.copy2(os.path.join(src_dir, 'hypercard-2.4.1', 'HyperCard241.dsk'), os.path.join(disks, 'HyperCard 2.4.1.dsk')) # legacy-compat: file names of the downloaded disk images
 
     # Extras: Risk II (ColorRisk 2.41) on its 800K floppy.
     extras = []
-    risk = os.path.join(apple, 'Risk_II.img_.sit')
+    risk = os.path.join(src_dir, 'Risk_II.img_.sit')
     if os.path.exists(risk):
         unar(risk, os.path.join(work, 'risk'))
         shutil.copy2(os.path.join(work, 'risk', 'Risk II.img'), os.path.join(disks, 'Risk II.dsk'))
@@ -92,7 +92,7 @@ def main():
         with open(hd, 'wb') as f:
             f.write(blank.write(size=HD_MB * 1024 * 1024))
 
-    shutil.copy2(os.path.join(apple, ROM), os.path.join(out, 'Quadra650.ROM'))
+    shutil.copy2(os.path.join(src_dir, ROM), os.path.join(out, 'Quadra650.ROM'))
     common = [
         f'rom {out}/Quadra650.ROM',
         'modelid 14',
@@ -121,7 +121,7 @@ def main():
 
     prefs('install.prefs', ['Disk Tools 7.5.3.dsk', 'Macintosh HD.dsk', 'System 7.5.3 Installer.dsk',
                             'System 7.5.5 Update 1.dsk', 'System 7.5.5 Update 2.dsk', 'System 7.5.5 Update 3.dsk',
-                            'HyperCard 2.4.1.dsk'] + extras)
+                            'HyperCard 2.4.1.dsk'] + extras) # legacy-compat: disk image name the emulator prefs use
     # The Developer CD stacks, if tools/stacks_disk.py has made their disk.
     if os.path.exists(os.path.join(disks, 'Apple Stacks.dsk')):
         extras.append('Apple Stacks.dsk')

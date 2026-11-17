@@ -106,7 +106,7 @@ fn line_rows(galley: &egui::Galley) -> Vec<egui::Rect> {
 /// An editor window (a script editor, an Info window, a watcher) as a real
 /// window of its own, so it can sit beside the card it's about instead of
 /// over it. Its close box clears `open`. Small alerts and dialogs stay in
-/// the main window, as in HyperCard.
+/// the main window, as in the classic app.
 pub(super) fn editor_window<R>(
     ctx: &egui::Context,
     id: egui::Id,
@@ -177,7 +177,7 @@ fn set_script(w: &mut World, obj: ObjRef, text: String) {
     w.dirty = true;
 }
 
-/// Re-indent a script the way HyperCard's editor does.
+/// Re-indent a script the way the classic app's editor does.
 pub fn format_script(src: &str) -> String {
     let mut out = Vec::new();
     let mut level: i32 = 0;
@@ -300,8 +300,8 @@ impl App {
                 };
                 let hilite = w.stack.hilite(card, layer, id);
                 let icons: Vec<(i32, String)> = w.stack.icons.iter().map(|(i, icon)| (*i, icon.name.clone())).collect();
-                // Then HyperCard's own icons, as its icon picker offered them.
-                let builtin: Vec<(i32, String)> = crate::import::hypercard_icons()
+                // Then the classic app's own icons, as its icon picker offered them.
+                let builtin: Vec<(i32, String)> = crate::import::builtin_icons()
                     .iter()
                     .filter(|(i, _)| !w.stack.icons.contains_key(i))
                     .map(|(i, icon)| (*i, icon.name.clone()))
@@ -422,7 +422,7 @@ impl App {
                                     }
                                     if !builtin.is_empty() {
                                         ui.separator();
-                                        ui.label(RichText::new("HyperCard's icons").weak());
+                                        ui.label(RichText::new("Built-in icons").weak());
                                         for (i, _) in &builtin {
                                             changed |= ui.selectable_value(&mut p.icon, *i, label(*i)).changed();
                                         }
@@ -505,11 +505,11 @@ impl App {
                 if scripting && ui.button("Script…").clicked() {
                     script = Some(obj);
                 }
-                // A HyperCard icon chosen for the button joins the stack's.
+                // A classic icon chosen for the button joins the stack's.
                 let icon = p.icon;
                 if icon != 0
                     && !w.stack.icons.contains_key(&icon)
-                    && let Some(i) = crate::import::hypercard_icons().get(&icon)
+                    && let Some(i) = crate::import::builtin_icons().get(&icon)
                 {
                     w.stack.icons.insert(icon, i.clone());
                 }
@@ -654,7 +654,7 @@ impl App {
             Some(EditorCommand::Checkpoint) | Some(EditorCommand::Discard) | None => {}
         }
         // Command-W with no changes, and Command-period: close at once (the
-        // latter without saving, as in HyperCard).
+        // latter without saving, as in the classic app).
         let quick_close = match command {
             Some(EditorCommand::Close) => !ed.confirm_close,
             Some(EditorCommand::Discard) => {
@@ -700,7 +700,7 @@ impl App {
                         .weak(),
                     );
                 });
-                // Closing with unsaved changes asks first, as HyperCard did.
+                // Closing with unsaved changes asks first, as the classic app did.
                 if ed.confirm_close {
                     ui.horizontal(|ui| {
                         ui.label(RichText::new("Save changes to this script?").strong());
@@ -1012,11 +1012,11 @@ impl App {
         ed.error = if ed.text.trim().is_empty() {
             None
         } else {
-            crate::hypertalk::parser::parse_script(&ed.text).err()
+            crate::lang::parser::parse_script(&ed.text).err()
         };
     }
 
-    /// Windows scripts opened (HyperCard 2's external windows): text
+    /// Windows scripts opened (classic 2's external windows): text
     /// windows (TEXWindow), which the user edits and closing one tells the
     /// card, and progress windows (ProgressWindoid), which scripts move and
     /// fill.
@@ -1401,7 +1401,7 @@ pub fn object_title(w: &World, obj: ObjRef) -> String {
             None => "deleted object".into(),
         },
         ObjRef::MsgBox => "message box".into(),
-        ObjRef::HyperCard => "RandomCard".into(),
+        ObjRef::Host => "RandomCard".into(),
     }
 }
 

@@ -43,7 +43,7 @@ def main():
         re.sub(r'"[^"]*"', '"…"', re.sub(r'line \d+', 'line N', r['first_error']))
         for r in rows if r['first_error']
     )
-    out = ['# Stacks on Apple\'s Developer CDs', '',
+    out = ['# Stacks on the vendor\'s Developer CDs', '',
            'Every distinct stack on the 1989–1994 Developer CDs (unpacked by `tools/devcds.py`),',
            'what it is, and how far it works in RandomCard. Identical copies on several discs',
            'are listed once. Made by the `index_stacks` test and `tools/stacks_md.py`.', '',

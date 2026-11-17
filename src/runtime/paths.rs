@@ -1,6 +1,6 @@
-//! Paths as scripts see them. HyperCard's were Mac paths, "Disk:Folder:Stack".
+//! Paths as scripts see them. The classic app's were Mac paths, "Disk:Folder:Stack".
 //! RandomCard gives each system's own, through Rust's `std::path`, except on
-//! macOS, where scripts get colon paths as HyperCard gave them: Apple's stacks
+//! macOS, where scripts get colon paths as the classic app gave them: the vendor's stacks
 //! look for the colons to find their own folders. `the pathSeparator` tells a
 //! script which separator it gets: ":" on macOS, "\" on Windows, "/" elsewhere.
 

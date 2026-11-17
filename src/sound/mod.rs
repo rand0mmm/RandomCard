@@ -1,4 +1,4 @@
-//! Sound for HyperTalk's `play`, `dial` and `beep`: turning sampled sounds and
+//! Sound for xTalk's `play`, `dial` and `beep`: turning sampled sounds and
 //! note strings like "c4q e g# a5h." into audio, and playing it.
 
 use std::f32::consts::TAU;
@@ -8,7 +8,7 @@ use crate::model::Sound;
 
 pub mod song;
 
-/// HyperCard's default tempo, in quarter notes per minute.
+/// The classic app's default tempo, in quarter notes per minute.
 pub const DEFAULT_TEMPO: f32 = 120.0;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -19,7 +19,7 @@ pub struct Note {
     pub beats: f32,
 }
 
-/// Parse HyperTalk notes: a name (a–g, or r for rest) or a MIDI number, an
+/// Parse xTalk notes: a name (a–g, or r for rest) or a MIDI number, an
 /// optional accidental (# or b), octave and duration (w h q e s t x), then
 /// optional dots and a 3 for triplets. Octave and duration carry over from
 /// the previous note; the first note defaults to octave 4, quarter note.
@@ -159,7 +159,7 @@ pub fn render(sound: &Sound, notes: &[Note], tempo: f32) -> Vec<f32> {
 
 const SYNTH_RATE: f32 = 22050.0;
 
-/// RandomCard's own stand-ins for HyperCard's built-in voices, used when a
+/// RandomCard's own stand-ins for the classic app's built-in voices, used when a
 /// stack doesn't carry its own copy of the sound.
 pub fn builtin(name: &str) -> Option<Sound> {
     let name = name.trim().to_ascii_lowercase();
@@ -249,14 +249,14 @@ pub fn beep_tone() -> Vec<f32> {
     (0..n)
         .map(|i| {
             let t = i as f32 / SYNTH_RATE;
-            // A square-ish tone, like the classic Mac "Simple Beep".
+            // A square-ish tone, like classic "Simple Beep".
             let s = (TAU * 880.0 * t).sin();
             s.signum() * 0.15 * (1.0 - i as f32 / n as f32)
         })
         .collect()
 }
 
-/// The sound channels HyperCard 2.4 had (`the soundChannel`, 1 to 8).
+/// The sound channels classic 2.4 had (`the soundChannel`, 1 to 8).
 pub const CHANNELS: usize = 8;
 
 /// One sound channel: sounds play on it one after another.
@@ -286,7 +286,7 @@ impl Channel {
 /// Plays sounds on eight channels, one after another on each, and knows
 /// what is playing for `the sound`. `play` uses the current channel (`the
 /// soundChannel`), so a script switching channels plays sounds together, as
-/// in HyperCard 2.4. Audio output is opened on first use; without a device,
+/// in classic 2.4. Audio output is opened on first use; without a device,
 /// sounds are timed but silent, so scripts that wait for them still work.
 ///
 /// The output can come and go, as a Bluetooth speaker does: when opening it
@@ -540,7 +540,7 @@ mod tests {
 
     #[test]
     fn channels() {
-        // Apple's chord: one note on each of three channels, together.
+        // The vendor's chord: one note on each of three channels, together.
         let mut p = Player::silent();
         assert_eq!(p.channel(), 1);
         for (ch, name) in [(1, "c"), (2, "e"), (3, "g")] {

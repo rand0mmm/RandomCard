@@ -1,5 +1,5 @@
-//! Laying out field text by HyperCard's metrics: where lines break, how
-//! tall they are, and where each word goes, as HyperCard placed them.
+//! Laying out field text by the classic app's metrics: where lines break, how
+//! tall they are, and where each word goes, as the classic app placed them.
 
 use crate::model::metrics::{self, Metrics};
 use crate::model::styles::{self, StyleRun};
@@ -134,7 +134,7 @@ pub fn layout(text: &str, runs: &[StyleRun], s: &Setting, width: f32) -> Vec<Lin
         let mut pieces: Vec<Piece> = Vec::new();
         for ch in line_chars {
             let same = pieces.last().is_some_and(|p| p.font == ch.font && p.size == ch.size && p.style == ch.style);
-            // Each word is placed where HyperCard put it.
+            // Each word is placed where the classic app put it.
             if same && ch.c != ' ' && !pieces.last().unwrap().text.ends_with(' ') {
                 pieces.last_mut().unwrap().text.push(ch.c);
             } else if ch.c == ' ' && same {
@@ -161,7 +161,7 @@ mod tests {
     }
 
     #[test]
-    fn wraps_by_hypercard_widths() {
+    fn wraps_by_classic_widths() {
         let m = metrics::metrics("Geneva", 12, "plain");
         let w = m.text_width("hello");
         let lines = plain(w + m.width(' ') + 2.0, "hello there world");
@@ -173,7 +173,7 @@ mod tests {
         assert_eq!(plain(500.0, "a\n\nb").len(), 3);
         // A word wider than the column breaks inside.
         assert!(plain(20.0, "abcdefghij").len() > 1);
-        // Words are placed by HyperCard's widths.
+        // Words are placed by the classic app's widths.
         let line = &plain(500.0, "ab cd")[0];
         assert_eq!(line.pieces[1].x, m.text_width("ab "));
     }

@@ -1,4 +1,4 @@
-//! Tokenizer for HyperTalk. HyperTalk is case-insensitive and line-oriented:
+//! Tokenizer for xTalk. xTalk is case-insensitive and line-oriented:
 //! newlines end statements, `--` starts a comment, and `¬` continues a line.
 
 #[derive(Clone, Debug, PartialEq)]
@@ -9,7 +9,7 @@ pub enum Tok {
     Str(String),
     /// Operators and punctuation.
     Sym(&'static str),
-    /// A character with no meaning in HyperTalk; an error if it appears in a handler.
+    /// A character with no meaning in xTalk; an error if it appears in a handler.
     Other(char),
     Newline,
     Eof,
@@ -73,7 +73,7 @@ pub fn lex(src: &str) -> Result<Vec<Token>, String> {
             }
             line += 1;
         } else if c == '"' {
-            // Curly quotes are ordinary characters inside strings, as in HyperCard.
+            // Curly quotes are ordinary characters inside strings, as in the classic app.
             let start = i + 1;
             i += 1;
             while i < chars.len() && !matches!(chars[i], '"' | '\n' | '\r') {

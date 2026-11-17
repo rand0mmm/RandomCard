@@ -4,14 +4,14 @@
   <metadata_license>MIT</metadata_license>
   <project_license>MIT</project_license>
   <name>RandomCard</name>
-  <summary>Apple's HyperCard, re-created</summary>
+  <summary>the classic app, re-created</summary>
   <description>
     <p>
-      RandomCard re-creates Apple's HyperCard: stacks of cards with buttons and
-      fields, MacPaint-style painting, and HyperTalk scripts.
+      RandomCard re-creates the classic app: stacks of cards with buttons and
+      fields, MacPaint-style painting, and xTalk scripts.
     </p>
     <p>
-      It opens HyperCard stacks from the classic Mac and saves its own. Stacks can
+      It opens classic stacks from vintage computers and saves its own. Stacks can
       be in color, with icons of any size, and each can open in a window of its own.
     </p>
   </description>

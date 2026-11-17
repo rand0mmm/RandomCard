@@ -1,5 +1,5 @@
 //! The Recent dialog (Go ▸ Recent, Ctrl+R): miniatures of the cards
-//! visited lately, as HyperCard showed them. Click one to go there.
+//! visited lately, as the classic app showed them. Click one to go there.
 
 use eframe::egui::{self, Color32, Pos2, Rect, Sense, Stroke, StrokeKind, Vec2};
 

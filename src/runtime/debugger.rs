@@ -1,4 +1,4 @@
-//! The debugger, as in HyperCard: a script stops at a checkpoint (set in the
+//! The debugger, as in the classic app: a script stops at a checkpoint (set in the
 //! script editor, or with `debug checkpoint`), shows where it is, and waits
 //! to be stepped, traced, continued or aborted. Also the message watcher's
 //! log of messages sent.
@@ -94,11 +94,11 @@ impl Interp {
                     Ok(cmd) => cmd,
                     Err(std::sync::mpsc::RecvTimeoutError::Timeout) => {
                         if self.abort.load(Ordering::SeqCst) {
-                            return Err(Ctl::ExitToHyperCard);
+                            return Err(Ctl::ExitToHost);
                         }
                         continue;
                     }
-                    Err(_) => return Err(Ctl::ExitToHyperCard),
+                    Err(_) => return Err(Ctl::ExitToHost),
                 },
                 // Tests answer from a list; with nothing to say, carry on.
                 None if self.canned_debug.is_empty() => DebugCmd::Go,

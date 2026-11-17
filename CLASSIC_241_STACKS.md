@@ -1,21 +1,21 @@
-# HyperCard 2.4.1's own stacks
+# Classic 2.4.1's own stacks
 
-The stacks that came with HyperCard 2.4.1, from its installation disk:
-Apple's own, for the version RandomCard follows, using its newest features.
-They live in `examples/apple/hypercard_241_stacks` (Apple's, so not in git).
+The stacks that came with classic 2.4.1, from its installation disk:
+The vendor's own, for the version RandomCard follows, using its newest features.
+They live in `examples/apple/hypercard_241_stacks` (the vendor's, so not in git).
 
 Each stack is opened, and every scripted button on every card clicked, by
-the `click_every_button` test; `tools/hc241.py` lists the stacks and writes
+the `click_every_button` test; `tools/classic241.py` lists the stacks and writes
 this page from the results. A clean stack gets no script error on any
 click. "Stopped" counts clicks that ran into the two-second limit, usually
 a timed demo or an animation, which aren't errors.
 
-Clean stacks are kept clean: `tests/hc241_clean.txt` lists them, and the
-`hypercard_241_stacks_stay_clean` test, part of `cargo test` wherever the
+Clean stacks are kept clean: `tests/classic241_clean.txt` lists them, and the
+`classic_241_stacks_stay_clean` test, part of `cargo test` wherever the
 stacks are, fails if one of them gets an error; visual effects and `wait`
 don't pause, with no one watching, so all of them take seconds. A stack
 joins the list when this page is written again after a fix. What breaks
-the others is in the roadmap's "HyperCard 2.4.1's own stacks" section.
+the others is in the roadmap's "classic 2.4.1's own stacks" section.
 
 **11 of 29 stacks are clean** (2026-11-16).
 
@@ -63,6 +63,6 @@ the others is in the roadmap's "HyperCard 2.4.1's own stacks" section.
 Files beside the stacks: pictures, fonts and movies.
 
 - Flower.pic
-- HyperCard Stacks/HyperCard Fonts
+- HyperCard Stacks/the classic app Fonts
 - HyperCard Stacks/Simple Movie
 - HyperCard Stacks/Simple Movie.mov

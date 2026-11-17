@@ -1,4 +1,4 @@
-//! The HyperTalk interpreter. It runs on its own thread, owns no stack data
+//! The xTalk interpreter. It runs on its own thread, owns no stack data
 //! itself, and reads and writes the shared `World` in short critical sections.
 
 use std::collections::{HashMap, HashSet};
@@ -8,10 +8,10 @@ use std::sync::mpsc::Receiver;
 use std::sync::{Arc, MutexGuard};
 use std::time::{Duration, Instant};
 
-use crate::hypertalk::ast::*;
-use crate::hypertalk::chunk::{self, Resolved};
-use crate::hypertalk::parser::{parse_expression, parse_object, parse_script_for_running, parse_statements};
-use crate::hypertalk::value::*;
+use crate::lang::ast::*;
+use crate::lang::chunk::{self, Resolved};
+use crate::lang::parser::{parse_expression, parse_object, parse_script_for_running, parse_statements};
+use crate::lang::value::*;
 use crate::model::{Id, Layer, Stack};
 
 use super::world::{Dialog, DialogReply, Event, KeyAction, ObjRef, Shared, UiRequest, World, lock};
@@ -46,7 +46,7 @@ pub enum Ctl {
     NextRepeat,
     Pass,
     Return(String),
-    ExitToHyperCard,
+    ExitToHost,
     Error(ScriptError),
 }
 
@@ -134,7 +134,7 @@ pub struct Interp {
     pub started: Instant,
     pub clipboard_card: Option<crate::model::Card>,
     /// Cards `push card` saved, with the stack each is in (its path, or
-    /// its name if it has none), as HyperCard saved the full ID and path.
+    /// its name if it has none), as the classic app saved the full ID and path.
     pub pushed_cards: Vec<(Id, String)>,
     /// For tests: canned dialog answers.
     pub canned_answers: Vec<DialogReply>,
@@ -218,7 +218,7 @@ impl Interp {
     // ----- event loop -----
 
     pub fn run(mut self, rx: Receiver<Event>) {
-        // `idle` goes out on a steady beat, as HyperCard sent it about every
+        // `idle` goes out on a steady beat, as the classic app sent it about every
         // tick, even while other messages (such as mouseWithin) keep coming.
         const IDLE_EVERY: Duration = Duration::from_millis(30);
         let mut last_idle = std::time::Instant::now();
@@ -338,7 +338,7 @@ impl Interp {
         };
         self.frames.clear();
         self.end_debugging();
-        // As in HyperCard, printing left open ends with the handler.
+        // As in the classic app, printing left open ends with the handler.
         let outcome = match outcome {
             Ok(()) => self.close_printing(),
             e => {
@@ -361,7 +361,7 @@ impl Interp {
         if !repeating {
             self.repeating_error = None;
         }
-        // HyperCard resets these when all handlers finish.
+        // The classic app resets these when all handlers finish.
         self.item_delimiter = ",".into();
         self.number_format = "0.######".into();
         self.lock_messages = false;
@@ -379,7 +379,7 @@ impl Interp {
         let r = self.send_text(text, target);
         self.frames.pop();
         match r {
-            Err(Ctl::ExitToHyperCard) => Ok(()),
+            Err(Ctl::ExitToHost) => Ok(()),
             r => r,
         }
     }
@@ -392,12 +392,12 @@ impl Interp {
         match handled {
             Ok(true) => Ok(()),
             Ok(false) => self.default_handler(target, message, &args),
-            Err(Ctl::ExitToHyperCard) => Ok(()),
+            Err(Ctl::ExitToHost) => Ok(()),
             Err(e) => Err(e),
         }
     }
 
-    /// What HyperCard itself does with a message nobody handled.
+    /// What the classic app itself does with a message nobody handled.
     fn default_handler(&mut self, _target: ObjRef, message: &str, args: &[String]) -> R<()> {
         let card = self.current_card_ref();
         self.frames.push(Frame::new(card, card, message, args.to_vec()));
@@ -408,7 +408,7 @@ impl Interp {
         };
         self.frames.pop();
         match r {
-            Err(Ctl::ExitToHyperCard) => Ok(()),
+            Err(Ctl::ExitToHost) => Ok(()),
             other => other,
         }
     }
@@ -420,7 +420,7 @@ impl Interp {
         let handled = self.send_message(target, message, &args);
         self.frames.pop();
         match handled {
-            Ok(true) | Err(Ctl::ExitToHyperCard) => Ok(()),
+            Ok(true) | Err(Ctl::ExitToHost) => Ok(()),
             Ok(false) => match default {
                 KeyAction::Menu(item) => {
                     self.frames.push(Frame::new(card, card, "commandKeyDown", args));
@@ -440,7 +440,7 @@ impl Interp {
 
     fn open_stack_messages(&mut self) -> R<()> {
         let card = self.current_card_ref();
-        // HyperCard sends startUp to the first card it shows, before openStack.
+        // The classic app sends startUp to the first card it shows, before openStack.
         if !std::mem::replace(&mut self.sent_startup, true) {
             self.dispatch_top(card, "startUp", vec![])?;
         }
@@ -484,7 +484,7 @@ impl Interp {
         }
         self.frames.pop();
         match r {
-            Err(Ctl::Return(_) | Ctl::Exit | Ctl::ExitToHyperCard | Ctl::Pass) => Ok(()),
+            Err(Ctl::Return(_) | Ctl::Exit | Ctl::ExitToHost | Ctl::Pass) => Ok(()),
             other => other.map(|_| ()),
         }
     }
@@ -617,7 +617,7 @@ impl Interp {
                 }
                 return path;
             }
-            ObjRef::HyperCard => return path,
+            ObjRef::Host => return path,
         }
         // Then the stack, the stacks in use, and Home.
         path.push(ObjRef::Stack);
@@ -632,14 +632,14 @@ impl Interp {
         path
     }
 
-    /// HyperCard's dynamic path: a message or function a handler uses by
+    /// The classic app's dynamic path: a message or function a handler uses by
     /// name goes along the static path of `target`, and if that misses the
     /// current card (the handler went to another card, or runs in the stack
     /// script), through the current card and its background before the
     /// stack.
     pub fn dynamic_path(&self, target: ObjRef) -> Vec<ObjRef> {
         let mut path = self.message_path(target);
-        if matches!(target, ObjRef::HyperCard) {
+        if matches!(target, ObjRef::Host) {
             return path;
         }
         let current = self.w().card_id;
@@ -773,7 +773,7 @@ impl Interp {
     pub fn get_var(&self, name: &str) -> Option<String> {
         let name = name.to_lowercase();
         let f = self.frame();
-        // Variables used in the message box are globals, as in HyperCard.
+        // Variables used in the message box are globals, as in the classic app.
         if f.msgbox {
             return self.globals.get(&name).cloned();
         }
@@ -802,7 +802,7 @@ impl Interp {
     }
 
     fn check_abort(&self) -> R<()> {
-        if self.abort.load(Ordering::SeqCst) { Err(Ctl::ExitToHyperCard) } else { Ok(()) }
+        if self.abort.load(Ordering::SeqCst) { Err(Ctl::ExitToHost) } else { Ok(()) }
     }
 
     pub fn exec(&mut self, s: &Stmt) -> R<()> {
@@ -849,7 +849,7 @@ impl Interp {
                 for n in names {
                     self.frame_mut().globals.insert(n.clone());
                     self.frame_mut().vars.remove(n);
-                    // Declaring a global makes it, empty, as in HyperCard.
+                    // Declaring a global makes it, empty, as in the classic app.
                     self.globals.entry(n.clone()).or_default();
                 }
                 Ok(())
@@ -863,7 +863,7 @@ impl Interp {
             }
             StmtKind::ExitHandler => Err(Ctl::Exit),
             StmtKind::ExitRepeat => Err(Ctl::ExitRepeat),
-            StmtKind::ExitToHyperCard => Err(Ctl::ExitToHyperCard),
+            StmtKind::ExitToHost => Err(Ctl::ExitToHost),
             StmtKind::NextRepeat => Err(Ctl::NextRepeat),
             StmtKind::Pass => Err(Ctl::Pass),
             StmtKind::Message { name, args } => self.message_stmt(name, args, false),
@@ -1363,7 +1363,7 @@ impl Interp {
 
     /// A value that names a chunk of a field, as `the foundChunk` and `the
     /// selectedChunk` do ("char 6 to 15 of card field 1"): that chunk, so
-    /// scripts can put into it or set its text properties, as in HyperCard.
+    /// scripts can put into it or set its text properties, as in the classic app.
     /// None for containers and for values that aren't chunks.
     pub(super) fn chunk_named_by(&mut self, e: &Expr) -> R<Option<Expr>> {
         if matches!(e, Expr::Var(_) | Expr::Object(_) | Expr::Selection | Expr::Menu(_) | Expr::Chunk(..)) {
@@ -1458,10 +1458,10 @@ impl Interp {
                 Err(std::sync::mpsc::RecvTimeoutError::Timeout) => {
                     if self.abort.load(Ordering::SeqCst) {
                         self.w().dialog = None;
-                        return Err(Ctl::ExitToHyperCard);
+                        return Err(Ctl::ExitToHost);
                     }
                 }
-                Err(_) => return Err(Ctl::ExitToHyperCard),
+                Err(_) => return Err(Ctl::ExitToHost),
             }
         }
     }
@@ -1501,7 +1501,7 @@ impl Interp {
     }
 
     pub fn parse_object_text(&mut self, text: &str) -> R<ObjRef> {
-        // A bare Home is the Home stack, as in `go home`: Apple's own stacks
+        // A bare Home is the Home stack, as in `go home`: the vendor's own stacks
         // `send "startUp" to Home`.
         if text.trim().eq_ignore_ascii_case("home") {
             let mut w = self.w();
@@ -1522,7 +1522,7 @@ impl Interp {
 
 pub fn to_number(s: &str) -> R<f64> {
     if s.trim().is_empty() {
-        // HyperCard treats empty as zero in arithmetic.
+        // The classic app treats empty as zero in arithmetic.
         return Ok(0.0);
     }
     parse_number(s).ok_or_else(|| {

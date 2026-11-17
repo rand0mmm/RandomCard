@@ -31,7 +31,7 @@ pub struct MenuState {
     pub paint: PaintOptions,
     /// Whether some paint is selected, for the Paint menu's commands.
     pub paint_selected: bool,
-    /// Whether something's just been painted (HyperCard's new element),
+    /// Whether something's just been painted (the classic app's new element),
     /// which the Paint menu's commands work on too.
     pub new_element: bool,
     /// Whether the layer's paint has changed since it was kept.
@@ -51,7 +51,7 @@ pub struct PaintOptions {
 impl MenuState {
     pub fn menu_shown(&self, menu: &str) -> bool {
         match menu {
-            // As in HyperCard, while a paint tool is chosen.
+            // As in the classic app, while a paint tool is chosen.
             "Paint" => self.tool.is_paint(),
             // On the Tools palette instead.
             "Options" => false,
@@ -68,7 +68,7 @@ impl MenuState {
         }
         match (menu, key.as_str()) {
             ("File", "delete stack") => self.editing >= 4,
-            // As in HyperCard, only while a paint tool is chosen.
+            // As in the classic app, only while a paint tool is chosen.
             ("File", "import paint" | "export paint") => self.tool.is_paint(),
             ("Edit", "new card" | "delete card" | "cut card" | "copy card" | "paste card") => self.editing >= 2,
             ("Edit", "background" | "clear picture") => self.editing >= 3,
@@ -87,7 +87,7 @@ impl MenuState {
             "undo" => self.can_undo && self.editing >= 2,
             "redo" => self.can_redo && self.editing >= 2,
             "cut" | "copy" | "clear" => {
-                // As in HyperCard, they name what they act on: "Copy Button".
+                // As in the classic app, they name what they act on: "Copy Button".
                 if let Some(t) = self.target.filter(|t| !(key == "clear" && *t == "Picture")) {
                     label = format!("{item} {t}");
                 }
@@ -100,7 +100,7 @@ impl MenuState {
                 self.paste.is_some()
             }
             "tools palette" => self.editing >= 3,
-            // As in HyperCard, the Paint menu's commands work on a
+            // As in the classic app, the Paint menu's commands work on a
             // selection, or on what was just painted.
             "fill" | "invert" | "darken" | "lighten" | "trace edges" | "rotate left" | "rotate right" | "flip vertical"
             | "flip horizontal" | "opaque" | "transparent" => self.paint_selected || self.new_element,
@@ -136,7 +136,7 @@ impl MenuState {
 
 /// A menu item. With `indent`, its text starts after a column for the check
 /// mark, so a menu's items line up whichever of them is checked, as on the
-/// Macintosh.
+/// the classic computer.
 pub fn menu_item(
     ui: &mut egui::Ui,
     name: &str,
@@ -206,7 +206,7 @@ pub fn builtin_key(item: &str) -> Option<&'static str> {
         "quit randomcard" => "q",
         "save stack" => "s",
         "tools palette" => "t",
-        // HyperCard's Command-K. (Its Command-S for Select is Save Stack here.)
+        // the classic app's Command-K. (Its Command-S for Select is Save Stack here.)
         "keep" => "k",
         _ => return None,
     })

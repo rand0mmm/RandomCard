@@ -1,5 +1,5 @@
 //! Picture files for Import Paint and Export Paint. Import reads PNG, JPEG,
-//! GIF and BMP, MacPaint documents (HyperCard's own export format) and
+//! GIF and BMP, MacPaint documents (the classic app's own export format) and
 //! QuickDraw PICT files; Export Paint writes a PNG.
 
 use crate::model::{Picture, Pixel};

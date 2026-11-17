@@ -1,19 +1,19 @@
-//! Externals that RandomCard does itself. HyperCard stacks called XCMDs and
-//! XFCNs, compiled 68000 code in their resource forks, for things HyperCard
+//! Externals that RandomCard does itself. Classic stacks called external commands and
+//! external functions, compiled 68000 code in their resource forks, for things the classic app
 //! lacked. RandomCard can't run that code, so it does the job instead and
-//! the external's name keeps working (see XCMDS.md). As in HyperCard, these
+//! the external's name keeps working (see EXTERNALS.md). As in the classic app, these
 //! are tried after the message path, so a script handler with the same name
 //! always wins.
 
 use std::path::PathBuf;
 
-use crate::hypertalk::value::parse_point;
+use crate::lang::value::parse_point;
 
 use crate::model::metrics;
 use crate::print;
 
 use super::interp::{Interp, R, to_int, to_number};
-use crate::hypertalk::ast::NameLength;
+use crate::lang::ast::NameLength;
 use super::world::{Dialog, DialogReply};
 
 /// Which file dialog to show.
@@ -68,7 +68,7 @@ impl Interp {
         if let Some(v) = self.rinaldi_function(name, args) {
             return Some(v);
         }
-        // QuickTime Tools' movieInfo XFCN.
+        // QuickTime Tools' movieInfo external function.
         if name == "movieinfo" {
             let file = args.first().cloned().unwrap_or_default();
             return Some(Ok(self.movie_info(&file)));
@@ -240,9 +240,9 @@ impl Interp {
             }
             // isnum(value): whether it's a number. Empty counts, so a script
             // asking until it gets a number stops when Cancel is clicked.
-            // dayMonthName(form, n), from HyperCard 1.2's DateBook: an odd
+            // dayMonthName(form, n), from classic 1.2's DateBook: an odd
             // form names day n (1 is Sunday), an even one month n, and a form
-            // above 2 abbreviates. It was an XFCN to get the Mac's own
+            // above 2 abbreviates. It was an external function to get the Mac's own
             // language; RandomCard's dates are in English.
             "daymonthname" => {
                 const DAYS: [&str; 7] = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -259,7 +259,7 @@ impl Interp {
             // FontExists(name[, size]): whether a font is installed. True for
             // the families RandomCard draws, at any size.
             "fontexists" => crate::model::metrics::has_family(&arg(0)).to_string(),
-            // GetCreator(code), from HyperCard 1.2's Documents stack.
+            // GetCreator(code), from classic 1.2's Documents stack.
             "getcreator" => super::home_docs::creator_name(&arg(0)),
             "isnum" => {
                 let s = arg(0);
@@ -297,7 +297,7 @@ impl Interp {
         if name == "addcolor" {
             return Some(self.addcolor(args));
         }
-        // Enviro, from HyperCard 2.4's Color Tools: `enviro GetLargestDepth`
+        // Enviro, from classic 2.4's Color Tools: `enviro GetLargestDepth`
         // puts the deepest screen's colors in bits into the result. Today's
         // screens are all millions of colors.
         if name == "enviro" {
@@ -305,7 +305,7 @@ impl Interp {
             self.result = if ask == "getlargestdepth" { "32".into() } else { String::new() };
             return Some(Ok(()));
         }
-        // HyperCard 2.4's Movie XCMD: open a movie window.
+        // Classic 2.4's Movie external command: open a movie window.
         if name == "movie" {
             return Some(self.open_movie(args));
         }
@@ -342,7 +342,7 @@ impl Interp {
                 w.script_windows.push(window);
                 Ok(())
             }
-            // palette name, point: HyperCard 2's palettes, a picture of buttons
+            // palette name, point: classic 2's palettes, a picture of buttons
             // in a floating window, from the stack's 'PLTE' resources. The
             // point is the palette's top left on the card; without one, it
             // goes back where it was, or to 10,20. Opening one sends
@@ -354,7 +354,7 @@ impl Interp {
                     return Some(super::interp::err(format!("Can't find palette \"{name}\"")));
                 };
                 let key = palette.name.to_lowercase();
-                // HyperCard's palette was an XCMD reading numbers from its
+                // The classic app's palette was an external command reading numbers from its
                 // text: a point that isn't one leaves the palette where it
                 // would go anyway.
                 let at = parse_point(&arg(1));
@@ -428,7 +428,7 @@ impl Interp {
             },
             // An animated About box from 1989.
             "spinabout" => Ok(()),
-            // getHomeInfo: HyperCard's Home script loaded the user's name and
+            // getHomeInfo: the classic app's Home script loaded the user's name and
             // search paths from its cards into globals (userName, stacks,
             // applications, documents). A stack's own getHomeInfo comes first
             // in the message path.
@@ -436,7 +436,7 @@ impl Interp {
                 self.home_info();
                 Ok(())
             }
-            // GetDocs folder: HyperCard 1.2's Documents stack, a card for each
+            // GetDocs folder: classic 1.2's Documents stack, a card for each
             // file.
             "getdocs" => self.get_docs(&arg(0)),
             // ZoomRect fromRect, toRect: the Finder's zoom, a trail of
@@ -470,7 +470,7 @@ impl Interp {
     }
 
     /// A file named by a stack: as given, beside the stack, or in a folder
-    /// beside the stack (where Apple's CDs put a stack's pictures).
+    /// beside the stack (where the vendor's CDs put a stack's pictures).
     pub(super) fn find_beside_stack(&self, name: &str) -> Option<PathBuf> {
         let given = super::paths::native(name);
         if given.is_absolute() {
@@ -525,7 +525,7 @@ fn rot13(c: char) -> char {
 }
 
 /// A pop-up menu's items: one per line, or separated by commas when
-/// they're all on one line. "(-" is a divider, as in HyperCard's menus.
+/// they're all on one line. "(-" is a divider, as in the classic app's menus.
 fn menu_items(list: &str) -> Vec<String> {
     let list = list.trim_end_matches(['\n', '\r']);
     let items: Vec<&str> = if list.contains(['\n', '\r']) { list.split(['\n', '\r']).collect() } else { list.split(',').collect() };

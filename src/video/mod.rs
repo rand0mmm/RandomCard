@@ -90,7 +90,7 @@ impl Player {
 /// What the movie files RandomCard plays are called.
 pub const EXTENSIONS: [&str; 6] = ["mov", "mp4", "m4v", "mpg", "mpeg", "m2v"];
 
-/// Whether a file is a movie, by its name or, for a classic Mac movie with
+/// Whether a file is a movie, by its name or, for a classic movie with
 /// no extension, by what's in it: a QuickTime or MP4 atom at the start, or
 /// an MPEG start code.
 pub fn is_movie(path: &Path) -> bool {
@@ -116,7 +116,7 @@ mod tests {
         assert!(is_movie(Path::new(tour)));
         assert!(!is_movie(Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/Cargo.toml"))));
         assert!(!is_movie(Path::new("/no/such/file")));
-        // A classic Mac movie, with no extension (when the stacks are here).
+        // A classic movie, with no extension (when the stacks are here).
         let simple = Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/apple/hypercard_241_stacks/HyperCard Stacks/Simple Movie"));
         if simple.exists() {
             assert!(is_movie(simple));

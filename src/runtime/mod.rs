@@ -1,4 +1,4 @@
-//! Running stacks: the shared world state and the HyperTalk interpreter.
+//! Running stacks: the shared world state and the xTalk interpreter.
 
 pub mod addcolor;
 mod builtins;
@@ -59,7 +59,7 @@ pub fn start(stack: Stack, open: Option<std::path::PathBuf>, user_level: u8, hom
     let abort = Arc::new(AtomicBool::new(false));
     let (w, a, tx) = (world.clone(), abort.clone(), events.clone());
     std::thread::Builder::new()
-        .name("hypertalk".into())
+        .name("script".into())
         .stack_size(SCRIPT_STACK)
         .spawn(move || {
             let mut interp = interp::Interp::new(w, Some(dialog_rx), a);

@@ -2,7 +2,7 @@
 //! (`drag from … to …`, `click at`, `type`). As in QuickDraw, a pattern is
 //! a mask: its black bits paint in a color (the fill color) and its white
 //! bits in white. Lines, borders, the pencil and text use the line color.
-//! With both colors black, painting is HyperCard's black and white.
+//! With both colors black, painting is the classic app's black and white.
 
 pub mod image_file;
 mod text;
@@ -55,7 +55,7 @@ pub struct Outline {
 }
 
 impl Outline {
-    /// HyperCard's: black, `size` pixels wide.
+    /// The classic app's: black, `size` pixels wide.
     #[cfg(test)]
     pub fn black(size: u32) -> Outline {
         Outline { size, color: Pixel::BLACK }
@@ -389,7 +389,7 @@ pub fn centered_start(tool: DragTool, a: (i32, i32), b: (i32, i32)) -> (i32, i32
     }
 }
 
-/// HyperCard's Grid: points snap to an invisible grid 8 pixels apart.
+/// The classic app's Grid: points snap to an invisible grid 8 pixels apart.
 pub const GRID: i32 = 8;
 
 pub fn snap_grid(p: (i32, i32)) -> (i32, i32) {
@@ -456,7 +456,7 @@ pub fn fill(pic: &mut Picture, x: i32, y: i32, ink: Ink) {
     }
 }
 
-/// HyperCard's spray: a circle 16 pixels across, 12 dots at a time.
+/// The classic app's spray: a circle 16 pixels across, 12 dots at a time.
 pub const SPRAY_SIZE: u32 = 16;
 pub const SPRAY_DENSITY: u32 = 12;
 /// The spray sizes and densities the palette offers.
@@ -624,7 +624,7 @@ fn blank(p: Pixel) -> bool {
     paper(p) == Pixel::WHITE
 }
 
-/// Tighten a selection around what's painted in it, as HyperCard's lasso
+/// Tighten a selection around what's painted in it, as the classic app's lasso
 /// does: blank pixels reached from the selection's edge without crossing
 /// paint drop out, and blank pixels inside a shape stay in. None when
 /// nothing is painted there.

@@ -1,4 +1,4 @@
-"""Turn an old Mac disk image, or a StuffIt archive holding one, into a plain
+"""Turn an old classic-computer disk image, or a StuffIt archive holding one, into a plain
 disk image (.dsk) that Basilisk II and Mini vMac can mount.
 
 usage: to_dsk.py ARCHIVE_OR_IMAGE OUT_DIR

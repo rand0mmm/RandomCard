@@ -1,5 +1,5 @@
-//! AddColor, HyperCard 2.x's Color Tools XCMD, built in: `addColor
-//! function, cd|bg, parameters…` as the HyperCard 2.4 "Color Tools" chapter
+//! AddColor, classic 2.x's Color Tools external command, built in: `addColor
+//! function, cd|bg, parameters…` as the classic 2.4 "Color Tools" chapter
 //! describes it. Each card and background keeps a list of color items
 //! (buttons, fields, rectangles and pictures), back to front; scripts
 //! address them by index, from 1 at the back. Temporary items
@@ -75,7 +75,7 @@ fn parse_rect(s: &str) -> Option<Rect> {
     }
 }
 
-/// An AddColor transition: the nearest HyperCard visual effect.
+/// An AddColor transition: the nearest classic visual effect.
 fn effect_name(e: &str) -> &'static str {
     let e = e.trim().to_ascii_lowercase();
     match e.as_str() {

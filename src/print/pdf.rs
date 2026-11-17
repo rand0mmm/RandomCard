@@ -1,6 +1,6 @@
 //! Just enough of PDF to print cards: pages of vector drawing, the
 //! standard fonts (which viewers supply, so nothing is embedded) and 1-bit
-//! images. Units are points, 72 to the inch: one HyperCard pixel each.
+//! images. Units are points, 72 to the inch: one classic pixel each.
 
 use std::collections::BTreeMap;
 use std::fmt::Write;

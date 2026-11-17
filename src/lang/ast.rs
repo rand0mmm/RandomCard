@@ -1,4 +1,4 @@
-//! Syntax tree for HyperTalk scripts.
+//! Syntax tree for xTalk scripts.
 
 use std::collections::HashMap;
 
@@ -15,7 +15,7 @@ pub struct Handler {
     pub params: Vec<String>,
     pub body: Vec<Stmt>,
     /// A handler that didn't parse: the error, reported when it runs, as
-    /// HyperCard compiled and reported each handler only when it was used.
+    /// the classic app compiled and reported each handler only when it was used.
     pub broken: Option<String>,
 }
 
@@ -89,7 +89,7 @@ pub enum ObjSpec {
     Me,
     Target,
     MsgBox,
-    HyperCard,
+    Host,
     /// `this stack` (None) or `stack "name"`.
     Stack(Option<Box<Expr>>),
     Card(CardSpec),
@@ -258,13 +258,13 @@ pub enum ShowHide {
     VariableWatcher,
     /// `show tool window`: the Tools palette.
     ToolWindow,
-    /// `show pattern window`: HyperCard's Patterns palette, which in
+    /// `show pattern window`: the classic app's Patterns palette, which in
     /// RandomCard is part of the Tools palette.
     PatternWindow,
-    /// `show groups`: HyperCard 2's gray underline under text in the group
+    /// `show groups`: classic 2's gray underline under text in the group
     /// style. RandomCard doesn't draw it yet.
     Groups,
-    /// `show scroll window`: HyperCard 2's Scroll palette; nothing to show.
+    /// `show scroll window`: classic 2's Scroll palette; nothing to show.
     ScrollWindow,
     /// `show window "Progress"`: a window a script opened, by name.
     Window(Expr),
@@ -432,7 +432,7 @@ pub enum StmtKind {
     Return(Option<Expr>),
     ExitHandler,
     ExitRepeat,
-    ExitToHyperCard,
+    ExitToHost,
     NextRepeat,
     Pass,
     /// A user-defined command or system message, sent through the message path.

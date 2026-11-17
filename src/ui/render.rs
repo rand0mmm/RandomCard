@@ -1,5 +1,5 @@
 //! Drawing cards: picture layers, buttons and fields in a black-and-white,
-//! HyperCard-like style, plus visual-effect transitions between cards.
+//! classic-like style, plus visual-effect transitions between cards.
 
 use std::collections::HashMap;
 
@@ -279,7 +279,7 @@ impl Textures {
             }
             let normal = picture_image(&icon.picture);
             let mut inverted = normal.clone();
-            // HyperCard's black-and-white icons reverse when hilited; a
+            // The classic app's black-and-white icons reverse when hilited; a
             // color icon darkens instead, as a pressed button does today.
             let color = icon.picture.has_color();
             for px in &mut inverted.pixels {
@@ -355,12 +355,12 @@ fn glyph_width(ctx: &egui::Context, font: &FontId, c: char) -> f32 {
 }
 
 thread_local! {
-    /// The egui size that best matches a HyperCard font and size.
+    /// The egui size that best matches a classic font and size.
     static MATCHED_SIZES: std::cell::RefCell<HashMap<(String, u32), f32>> = Default::default();
 }
 
-/// The size to draw a HyperCard font at so that its text is about as wide
-/// as it was in HyperCard, leaving less for letter spacing to make up.
+/// The size to draw a classic font at so that its text is about as wide
+/// as it was in the classic app, leaving less for letter spacing to make up.
 fn matched_size(ctx: &egui::Context, font: &str, size: u32, id: &FontId) -> f32 {
     if bitmap_font::font(font, size).is_some() {
         return id.size;
@@ -379,14 +379,14 @@ fn matched_size(ctx: &egui::Context, font: &str, size: u32, id: &FontId) -> f32 
     matched
 }
 
-/// Append text spaced by HyperCard's character widths, so lines break
+/// Append text spaced by the classic app's character widths, so lines break
 /// where they did. Words keep their own letter spacing, squeezed only when
-/// they'd run past where HyperCard put them; the spaces between words
+/// they'd run past where the classic app put them; the spaces between words
 /// widen to bring the next word to its place. (A space never starts a
 /// wrapped line, so the extra room can't indent one.)
 fn append_spaced(ctx: &egui::Context, job: &mut LayoutJob, text: &str, m: &metrics::Metrics, fmt: TextFormat) {
     super::system_fonts::note_text(text);
-    // A stack's own bitmap font is drawn with HyperCard's widths already.
+    // A stack's own bitmap font is drawn with the classic app's widths already.
     if m.bitmap.is_some() {
         job.append(text, 0.0, fmt);
         return;
@@ -431,7 +431,7 @@ fn append_spaced(ctx: &egui::Context, job: &mut LayoutJob, text: &str, m: &metri
     }
 }
 
-/// A word or run of spaces, measured: egui's width and HyperCard's.
+/// A word or run of spaces, measured: egui's width and the classic app's.
 struct Token {
     ours: f32,
     theirs: f32,
@@ -441,9 +441,9 @@ struct Token {
 }
 
 /// Letter spacing for each word and padding before each run of spaces, so
-/// the text keeps HyperCard's widths: words are drawn a little tighter
+/// the text keeps the classic app's widths: words are drawn a little tighter
 /// where egui's font is wider, and spaces take up what's left. `drift` is
-/// how far egui's pen is ahead of HyperCard's. A run of spaces pads by at
+/// how far egui's pen is ahead of the classic app's. A run of spaces pads by at
 /// most its own width, so text that has fallen behind (a long run with no
 /// spaces, such as JSON) catches up a little at each space rather than all
 /// at once in one wide gap.
@@ -475,7 +475,7 @@ fn text_format(part: &Part, color: Color32) -> TextFormat {
     format_for(&part.text_font, part.text_size, &part.text_style, color)
 }
 
-/// A one-line label in the part's font, spaced as HyperCard spaced it.
+/// A one-line label in the part's font, spaced as the classic app spaced it.
 fn label_job(ctx: &egui::Context, part: &Part, text: &str, color: Color32) -> LayoutJob {
     let mut fmt = text_format(part, color);
     fmt.font_id.size = matched_size(ctx, &part.text_font, part.text_size, &fmt.font_id);
@@ -566,7 +566,7 @@ pub fn draw_over(painter: &Painter, tex: &Textures, scene: &Scene, i: usize, ori
     }
 }
 
-/// Whether a button inverts what's under it when hilited: in HyperCard a
+/// Whether a button inverts what's under it when hilited: in the classic app a
 /// hilited transparent button with no icon reverses black and white in its
 /// rectangle, so stacks laid one over text to show it white on black.
 fn can_invert(p: &Part) -> bool {
@@ -875,10 +875,10 @@ fn draw_slider(painter: &Painter, p: &Part, rect: Rect, pressed: bool) {
 
 pub const ICON_SIZE: f32 = 32.0;
 
-/// HyperCard's icon button layout: the icon and a 9-point name beneath it,
-/// centered together. An icon is drawn at its own size: HyperCard's are
+/// The classic app's icon button layout: the icon and a 9-point name beneath it,
+/// centered together. An icon is drawn at its own size: the classic app's are
 /// 32×32, and RandomCard's can be any size. A missing icon leaves a 32×32
-/// space empty, as in HyperCard.
+/// space empty, as in the classic app.
 fn draw_icon_and_name(painter: &Painter, tex: &Textures, p: &Part, rect: Rect, inverted: bool, fg: Color32, fill: Color32) {
     let label_part = Part { text_size: 9, text_style: "plain".into(), text_font: "Geneva".into(), ..p.clone() };
     let label = (p.show_name && !p.name.is_empty()).then(|| {
@@ -931,7 +931,7 @@ pub fn scroll_view_rect(p: &Part, rect: Rect) -> Rect {
     Rect::from_min_max(text.min, Pos2::new(rect.right() - 1.0, text.bottom()))
 }
 
-/// Where a field's text goes, inset from its frame as in HyperCard: a
+/// Where a field's text goes, inset from its frame as in the classic app: a
 /// 1-pixel frame, 3 pixels each side (wideMargins: 8 left, 6 right, and 4
 /// at the top), less any shadow or scroll bar.
 pub fn field_text_rect(p: &Part, rect: Rect) -> Rect {
@@ -1208,7 +1208,7 @@ fn draw_scroll_indicator(painter: &Painter, area: Rect, scroll: f32, content_h: 
     painter.rect_filled(thumb, 3.0, Color32::from_gray(150));
 }
 
-/// Draw `old` transitioning to `new` with a HyperCard visual effect, `t` in 0..1.
+/// Draw `old` transitioning to `new` with a classic visual effect, `t` in 0..1.
 pub fn draw_transition(
     painter: &Painter,
     tex: &Textures,
@@ -1355,8 +1355,8 @@ mod tests {
     }
 
     #[test]
-    fn spacing_keeps_hypercards_widths() {
-        // A word wider in egui is tightened to HyperCard's width.
+    fn spacing_keeps_classic_widths() {
+        // A word wider in egui is tightened to the classic app's width.
         let s = spacing(&[word(110.0, 100.0, 11)]);
         assert_eq!(s[0], (-1.0, 0.0));
         // A space after a word that came out narrow takes up the difference.

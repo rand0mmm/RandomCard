@@ -1,10 +1,10 @@
-//! Built-in HyperTalk commands, navigation and menu actions.
+//! Built-in xTalk commands, navigation and menu actions.
 
 use std::time::Duration;
 
-use crate::hypertalk::ast::*;
-use crate::hypertalk::parser::parse_statements;
-use crate::hypertalk::value::*;
+use crate::lang::ast::*;
+use crate::lang::parser::parse_statements;
+use crate::lang::value::*;
 use crate::model::styles;
 use crate::model::{Background, Card, Id, Layer, Part, PartKind, Picture, Rect};
 
@@ -121,7 +121,7 @@ impl Interp {
                 }
                 Ok(())
             }
-            // HyperCard asked "Where is …?" for a program it couldn't find;
+            // The classic app asked "Where is …?" for a program it couldn't find;
             // RandomCard leaves "Cancel" in the result instead.
             Cmd::OpenDocument { doc, app } => {
                 let doc = self.eval(doc)?;
@@ -203,7 +203,7 @@ impl Interp {
                 };
                 self.send_text(&text, target)
             }
-            // HyperCard 2 windows take a few messages: "select" brings one to
+            // Classic 2 windows take a few messages: "select" brings one to
             // the front, showing it; "close" closes it. Others do nothing.
             Cmd::SendToWindow { msg, window } => {
                 let text = self.eval(msg)?;
@@ -302,7 +302,7 @@ impl Interp {
             }
             Cmd::PopCard(into) => {
                 // Popping more cards than were pushed gives the Home card, as
-                // in HyperCard; stacks test for it (`if it contains "Home"`).
+                // in the classic app; stacks test for it (`if it contains "Home"`).
                 let Some((id, place)) = self.pushed_cards.pop() else {
                     return match into {
                         Some((prep, dest)) => {
@@ -541,7 +541,7 @@ impl Interp {
                 let pos = if *at_end { f.content.chars().count() } else { at.unwrap_or(f.pos) };
                 let mut chars: Vec<char> = f.content.chars().collect();
                 let pos = pos.min(chars.len());
-                // Writing overwrites from the position onward, like HyperCard.
+                // Writing overwrites from the position onward, like the classic app.
                 chars.truncate(pos);
                 f.content = chars.into_iter().collect::<String>() + &data;
                 f.pos = f.content.chars().count();
@@ -584,10 +584,10 @@ impl Interp {
             }
             Cmd::Select(Select::Part(e)) => {
                 // A chunk held in a variable (`put the selectedChunk into c`
-                // … `select c`) selects that text, as in HyperCard.
+                // … `select c`) selects that text, as in the classic app.
                 if !matches!(e, Expr::Object(_)) {
                     let text = self.eval(e)?;
-                    // `select ""` is `select empty`, as in HyperCard.
+                    // `select ""` is `select empty`, as in the classic app.
                     if text.trim().is_empty() {
                         let mut w = self.w();
                         w.focus = None;
@@ -708,7 +708,7 @@ impl Interp {
             }
             Cmd::Convert { value, to } => {
                 let v = self.eval(value)?;
-                // As in HyperCard, what isn't a date is left as it was, with
+                // As in the classic app, what isn't a date is left as it was, with
                 // "Invalid date" in the result.
                 let Some(dt) = dates::parse_date(&v) else {
                     self.result = "Invalid date".into();
@@ -744,7 +744,7 @@ impl Interp {
                     }
                     return Ok(());
                 }
-                // The stack's own sound, else RandomCard's stand-in for a HyperCard voice.
+                // The stack's own sound, else RandomCard's stand-in for a classic voice.
                 let found = self.w().stack.find_sound(&name).cloned();
                 let Some(snd) = found.or_else(|| crate::sound::builtin(&name)) else {
                     self.result = format!("Can't find sound \"{name}\"");
@@ -881,7 +881,7 @@ impl Interp {
         let r = self.w().palette_state.rect;
         let (x, y) = match prop.as_str() {
             "loc" | "location" | "topleft" => parse_point(v),
-            "rect" | "rectangle" => crate::hypertalk::value::parse_rect(v).map(|(l, t, _, _)| (l, t)),
+            "rect" | "rectangle" => crate::lang::value::parse_rect(v).map(|(l, t, _, _)| (l, t)),
             "left" => to_int(v).ok().map(|l| (l as i32, r.top)),
             "top" => to_int(v).ok().map(|t| (r.left, t as i32)),
             _ => return err(format!("Can't set the {prop} of the palette")),
@@ -926,7 +926,7 @@ impl Interp {
                 if is_palette_name(name) {
                     return self.show_palette(show, at);
                 }
-                // HyperCard 2's Scroll palette: RandomCard scrolls a big card
+                // Classic 2's Scroll palette: RandomCard scrolls a big card
                 // with the window's own scroll bars, so it has none to show.
                 if ["scroll", "scroll window"].iter().any(|m| m.eq_ignore_ascii_case(name)) {
                     return self.show_hide(&ShowHide::ScrollWindow, show, at);
@@ -1079,7 +1079,7 @@ impl Interp {
         }
     }
 
-    /// A stack file by name or path, searched for as HyperCard's default
+    /// A stack file by name or path, searched for as the classic app's default
     /// search paths did: as given, then in the current stack's folder and
     /// its subfolders, then up to two folders up and their subfolders (so a
     /// stack in Idea Stacks finds one in HyperCard Stacks beside it), one
@@ -1125,8 +1125,8 @@ impl Interp {
                 dirs.push(up.to_path_buf());
                 dirs.extend(subfolders(up));
             }
-            // HyperCard shipped on several floppies, copied into one folder:
-            // a stack on disk 3 looks for one in "HyperCard 1/HyperCard Stacks".
+            // The classic app shipped on several floppies, copied into one folder:
+            // a stack on disk 3 looks for one in "classic 1/HyperCard Stacks".
             if let Some(top) = dir.ancestors().nth(2) {
                 for sub in subfolders(top) {
                     dirs.extend(subfolders(&sub));
@@ -1136,7 +1136,7 @@ impl Interp {
         if let Some(dir) = home.as_deref().and_then(Path::parent) {
             dirs.push(dir.to_path_buf());
         }
-        // Then the folders on Home's Stacks card, as in HyperCard.
+        // Then the folders on Home's Stacks card, as in the classic app.
         let paths = {
             let mut w = self.w();
             w.load_home();
@@ -1329,7 +1329,7 @@ impl Interp {
 
     /// Bring a card window forward: its stack becomes the current one.
     /// The stack going behind is sent suspendStack, and the one coming
-    /// forward resumeStack, as in HyperCard.
+    /// forward resumeStack, as in the classic app.
     pub fn bring_forward(&mut self, key: u32) -> R<()> {
         if !self.w().windows.iter().any(|sw| sw.key == key) {
             return Ok(());
@@ -1476,7 +1476,7 @@ impl Interp {
             let mut w = self.w();
             w.card_id = id;
             w.focus = None;
-            // Leaving a card keeps its paint, as in HyperCard.
+            // Leaving a card keeps its paint, as in the classic app.
             if old != id {
                 w.keep_paint();
             }
@@ -1523,7 +1523,7 @@ impl Interp {
             let seq = w.transition_seq;
             w.transition = Some(Transition { effect: name.to_ascii_lowercase(), seconds, seq });
         }
-        // Let the effect play before the script continues, as HyperCard does.
+        // Let the effect play before the script continues, as the classic app does.
         self.watch_pause(Duration::from_secs_f32(seconds))
     }
 
@@ -1584,7 +1584,7 @@ impl Interp {
         }
         let target = self.part_at(x, y).unwrap_or_else(|| self.current_card_ref());
         // With the button or field tool a click selects a part and sends no
-        // messages, as in HyperCard; scripts click that way before Clear
+        // messages, as in the classic app; scripts click that way before Clear
         // Button. Paint tools aren't sent messages either.
         let tool = self.w().tool;
         if tool != Tool::Browse {
@@ -1626,7 +1626,7 @@ impl Interp {
     // ----- find -----
 
     /// The fields `find … in field` searches, card by card. A field named
-    /// by its description is looked up on each card, as HyperCard does:
+    /// by its description is looked up on each card, as the classic app does:
     /// cards without it are skipped, and each background's field of that
     /// name counts, whatever its id.
     fn find_fields(&mut self, f: &Expr) -> R<std::collections::HashSet<(Id, Layer, Id)>> {
@@ -1746,7 +1746,7 @@ impl Interp {
         let (a, b) = if resolved.is_empty() {
             (0, text.len())
         } else {
-            crate::hypertalk::chunk::locate(&mut text.clone(), &resolved, &self.item_delimiter, false)
+            crate::lang::chunk::locate(&mut text.clone(), &resolved, &self.item_delimiter, false)
         };
         let (start, end) = (offset + text[..a].chars().count(), offset + text[..b].chars().count());
         Ok(FieldRange { card, layer, field: id, start, end })
@@ -2045,7 +2045,7 @@ impl Interp {
         };
         let keys = self.per_card(ids, |me, _| {
             // A card without the part sorted on (an index card on another
-            // background) sorts as if it were empty, as in HyperCard.
+            // background) sorts as if it were empty, as in the classic app.
             let v = match me.eval(by) {
                 Err(Ctl::Error(e)) if e.msg.starts_with("No such") => String::new(),
                 v => v?,
@@ -2385,7 +2385,7 @@ impl Interp {
             }
             "recent" => self.request(UiRequest::Recent),
             "find" => {
-                // As in HyperCard: the message box, ready to type what to find.
+                // As in the classic app: the message box, ready to type what to find.
                 let mut w = self.w();
                 w.msg = "find \"\"".into();
                 w.msg_visible = true;
@@ -2402,7 +2402,7 @@ impl Interp {
             "import paint" => self.paint_file_menu(true),
             "export paint" => self.paint_file_menu(false),
             "new stack" => self.request(UiRequest::NewStack),
-            "quit hypercard" | "quit randomcard" | "quit" => self.request(UiRequest::Quit),
+            "quit hypercard" | "quit randomcard" | "quit" => self.request(UiRequest::Quit), // legacy-compat: doMenu item names in old stacks
             "button info" | "field info" => self.request(UiRequest::SelectedPartInfo),
             "card info" => self.request(UiRequest::CardInfo),
             "bkgnd info" | "background info" => self.request(UiRequest::BgInfo),
@@ -2459,7 +2459,7 @@ impl Interp {
                 };
                 *on = !*on;
                 let on = *on;
-                // HyperCard kept Power Keys on Home's Preferences card.
+                // The classic app kept Power Keys on Home's Preferences card.
                 if key == "power keys" {
                     w.requests.push(UiRequest::SavePowerKeys(on));
                 }
@@ -2486,7 +2486,7 @@ impl Interp {
             // Nothing to do: stacks are written whole, printing goes through
             // PDF, and there's one window and no help stack.
             "compact stack" => self.compact_stack(),
-            "page setup" | "scroll" | "help" | "about hypercard" | "about randomcard" => Ok(()),
+            "page setup" | "scroll" | "help" | "about hypercard" | "about randomcard" => Ok(()), // legacy-compat: doMenu item names in old stacks
             // The stack window furthest back comes forward, so repeating it
             // goes round them all.
             "next window" => {
@@ -2532,7 +2532,7 @@ impl Interp {
     }
 
     /// Compact Stack: drop what the stack no longer uses, then save it, as
-    /// HyperCard did. A stack with no file yet, or that can't be modified,
+    /// the classic app did. A stack with no file yet, or that can't be modified,
     /// is only compacted in memory.
     fn compact_stack(&mut self) -> R<()> {
         let save = {
@@ -2548,7 +2548,7 @@ impl Interp {
     }
 
     /// Delete Stack: after asking, remove the stack's RandomCard file and go
-    /// Home. A HyperCard stack that was only imported keeps its file.
+    /// Home. A classic stack that was only imported keeps its file.
     fn delete_stack(&mut self) -> R<()> {
         let (name, path, protected, home) = {
             let w = self.w();
@@ -2725,7 +2725,7 @@ fn is_word_char(c: char) -> bool {
     c.is_alphanumeric() || c == '\''
 }
 
-/// Find `needle` in `hay` (both lowercase) from byte `from`, per HyperTalk find modes.
+/// Find `needle` in `hay` (both lowercase) from byte `from`, per xTalk find modes.
 pub fn find_in(hay: &str, needle: &str, mode: FindMode, from: usize) -> Option<(usize, usize)> {
     if from > hay.len() {
         return None;

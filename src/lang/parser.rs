@@ -1,4 +1,4 @@
-//! Recursive-descent parser for HyperTalk, modeled on HyperCard 2.x syntax.
+//! Recursive-descent parser for xTalk, modeled on classic 2.x syntax.
 
 use super::ast::*;
 use super::lexer::{Tok, Token, lex};
@@ -220,11 +220,11 @@ struct Parser {
     /// How many multi-line `if` blocks enclose the current position.
     if_depth: usize,
     /// The parameters of the handler being parsed: one named `message` or
-    /// `msg` is that variable there, not the Message box, as in HyperCard.
+    /// `msg` is that variable there, not the Message box, as in the classic app.
     params: Vec<String>,
     /// Parsing which line or character a chunk is (`line scroll of x`):
     /// there a property's name before "of" is a variable, not the property
-    /// without `the`, as in HyperCard (Shattered Stone keeps a variable
+    /// without `the`, as in the classic app (Shattered Stone keeps a variable
     /// `scroll`). Functions such as `number of` still work.
     in_chunk_index: bool,
 }
@@ -446,7 +446,7 @@ impl Parser {
 
     /// `controller of movie 1`: a property of the movie's controller, which
     /// is the movie's own property with "controller" in front
-    /// (`controllerVisible`, as HyperCard first called it).
+    /// (`controllerVisible`, as the classic app first called it).
     fn controller_of_movie(&mut self, prop: &mut String) {
         if self.is("controller") && self.is_at(1, "of") && self.movie_ref_at(2) {
             self.pos += 2;
@@ -468,7 +468,7 @@ impl Parser {
             } else if self.accept("function") {
                 true
             } else {
-                // HyperCard ignores anything outside handlers, such as banner text.
+                // The classic app ignores anything outside handlers, such as banner text.
                 self.rest_of_line();
                 continue;
             };
@@ -515,7 +515,7 @@ impl Parser {
         Ok((name, Handler { params, body, broken: None }))
     }
 
-    /// A handler's name. HyperCard allowed periods in it (Apple's develop
+    /// A handler's name. The classic app allowed periods in it (the vendor's develop
     /// stacks kept an old version as `function BuildQuery.old`).
     fn handler_name(&mut self) -> PResult<String> {
         let mut name = self.symbol()?;
@@ -558,7 +558,7 @@ impl Parser {
                 return Err(self.err_here(&format!("Expected \"{}\"", terminators.join("\" or \""))));
             }
             if self.if_depth == 0 && self.is("end") && self.is_at(1, "if") {
-                // A stray `end if` after a one-line else; HyperCard tolerates it.
+                // A stray `end if` after a one-line else; the classic app tolerates it.
                 self.pos += 2;
                 continue;
             }
@@ -608,8 +608,8 @@ impl Parser {
                     return Ok(StmtKind::ExitRepeat);
                 }
                 if self.accept("to") {
-                    self.accept_any(&["hypercard", "randomcard"]);
-                    return Ok(StmtKind::ExitToHyperCard);
+                    self.accept_any(&["hypercard", "randomcard"]); // legacy-compat: `exit to HyperCard` in old scripts
+                    return Ok(StmtKind::ExitToHost);
                 }
                 self.symbol()?;
                 return Ok(StmtKind::ExitHandler);
@@ -637,7 +637,7 @@ impl Parser {
             // `pause movie 1`; a stack's own `pause` handler is still a message.
             || matches!(w.as_str(), "pause" | "rewind") && self.movie_ref_at(1);
         // A bare `dial` is a message for a stack's own dial handler (Phone
-        // Dialer's asks for the number); HyperCard's needs a number.
+        // Dialer's asks for the number); the classic app's needs a number.
         let bare_dial = w == "dial" && self.at_stmt_end_at(1);
         if COMMANDS.contains(&w.as_str()) && !bare_dial || paint_file || web {
             let start = self.pos + 1;
@@ -651,7 +651,7 @@ impl Parser {
         // A message: a name followed by optional comma-separated arguments.
         self.advance();
         // `aboutThisDIAStack.`: a period ending a bare command, which
-        // HyperCard let pass.
+        // the classic app let pass.
         if matches!(self.tok(), Tok::Other('.')) && self.at_stmt_end_at(1) {
             self.advance();
         }
@@ -747,7 +747,7 @@ impl Parser {
     }
 
     /// One argument of a call or message. An empty one (`f a,,b`) is
-    /// empty, as in HyperCard.
+    /// empty, as in the classic app.
     fn arg_expr(&mut self) -> PResult<Expr> {
         if matches!(self.tok(), Tok::Sym("," | ")")) || self.at_stmt_end() {
             return Ok(Expr::Lit(String::new()));
@@ -810,7 +810,7 @@ impl Parser {
                 let messages = if self.accept("with") {
                     self.accept_any(&["menumessages", "menumessage", "menumsgs", "menumsg"]);
                     // Unquoted (`with menuMessages go stack "Search"`), the
-                    // message is the rest of the line, as HyperCard took it.
+                    // message is the rest of the line, as the classic app took it.
                     let start = self.pos;
                     match self.list_expr() {
                         Ok(e) if self.at_newline() || self.at_eof() => Some(e),
@@ -996,7 +996,7 @@ impl Parser {
             "send" => {
                 let msg = self.list_expr()?;
                 let target = if self.accept("to") {
-                    // `send "select" to window "Notes"`: to a HyperCard 2 window.
+                    // `send "select" to window "Notes"`: to a classic 2 window.
                     if self.accept("window") {
                         return Ok(Cmd::SendToWindow { msg, window: self.expr()? });
                     }
@@ -1011,7 +1011,7 @@ impl Parser {
                 Cmd::Send { msg, target }
             }
             "do" => {
-                // `do ShowCategory CardNum,2`: HyperCard evaluated each word
+                // `do ShowCategory CardNum,2`: the classic app evaluated each word
                 // and ran the result, "ShowCategory 3,2", as a statement.
                 let mut e = self.expr()?;
                 while !self.at_newline() && !self.at_eof() && !self.is("else") {
@@ -1363,7 +1363,7 @@ impl Parser {
                     let song = if self.at_stmt_end() { None } else { Some(self.expr()?) };
                     return Ok(Cmd::PlayStop(song));
                 }
-                // `play theSound ("c4" & "e")`: HyperCard takes a variable
+                // `play theSound ("c4" & "e")`: the classic app takes a variable
                 // before parentheses as the sound and the parentheses as the
                 // notes, not as a call to a function named theSound.
                 let variable_then_notes = self.word().is_some_and(|w| {
@@ -1386,7 +1386,7 @@ impl Parser {
                         continue;
                     }
                     // Notes are often written without quotes (`play "boing"
-                    // c#4 g3h.`), which HyperCard takes as written: when
+                    // c#4 g3h.`), which the classic app takes as written: when
                     // they aren't expressions, all of them are the line's
                     // text from the first note on.
                     let start = *notes_start.get_or_insert(self.pos);
@@ -1653,7 +1653,7 @@ impl Parser {
             return Ok(ShowHide::BgPicture);
         }
         if self.accept_any(&["picture", "pict"]).is_some() {
-            // HyperTalk takes "in" for "of": hide picture in card "bathroom".
+            // xTalk takes "in" for "of": hide picture in card "bathroom".
             if !self.accept("in") {
                 self.expect("of")?;
             }
@@ -1667,7 +1667,7 @@ impl Parser {
             return Ok(ShowHide::Groups);
         }
         if self.is("scroll") && self.is_at(1, "window") {
-            // HyperCard 2's Scroll palette, for moving around a card bigger
+            // Classic 2's Scroll palette, for moving around a card bigger
             // than its window. RandomCard has no such palette.
             self.pos += 2;
             return Ok(ShowHide::ScrollWindow);
@@ -1735,7 +1735,7 @@ impl Parser {
         Ok(Effect { name, speed })
     }
 
-    /// `go to Help Index`, `go to card id 3963 of Help Intro`: HyperCard
+    /// `go to Help Index`, `go to card id 3963 of Help Intro`: the classic app
     /// took a name of several bare words as written. When the end of the
     /// destination (after its last `of`, or after `card` or `stack`) is two
     /// or more plain words, they become one quoted name. Bare words side by
@@ -1784,7 +1784,7 @@ impl Parser {
             self.advance();
         }
         let card_at = |n: usize| self.word_at(n).is_some_and(is_card_word);
-        // `go to cd id` with no id: HyperCard compiles it and says "No such
+        // `go to cd id` with no id: the classic app compiles it and says "No such
         // card" only if it runs (Shattered Stone's exits to nowhere).
         if card_at(0) && self.is_at(1, "id") && self.at_stmt_end_at(2) {
             self.pos += 2;
@@ -1817,7 +1817,7 @@ impl Parser {
             return Ok(GoDest::Card(CardSpec::Which(Which::Ordinal(ord))));
         }
         let e = self.expr()?;
-        // `go cd "page" && n of stack "develop Issue" && issue`: HyperCard
+        // `go cd "page" && n of stack "develop Issue" && issue`: the classic app
         // took everything up to `of` as the card's name, and the rest as the
         // stack's.
         if self.is("of")
@@ -1835,7 +1835,7 @@ impl Parser {
             )));
         }
         match e {
-            // HyperCard 1.x stacks write `go to card "Index" of "Datebook"`.
+            // Classic 1.x stacks write `go to card "Index" of "Datebook"`.
             Expr::Object(ObjSpec::Card(spec)) if self.is("of") && self.starts_term_at(1) => {
                 self.advance();
                 Ok(GoDest::Card(CardSpec::OfStack(Box::new(spec), Box::new(self.term()?))))
@@ -1938,7 +1938,7 @@ impl Parser {
                     e = Expr::IsType(false, Box::new(e), t);
                     continue;
                 } else if self.is_at(1, "no") && self.word_at(2).is_some_and(|w| TYPE_NAMES.contains(&w)) {
-                    // HyperCard takes "is no integer" for "is not an integer".
+                    // The classic app takes "is no integer" for "is not an integer".
                     self.pos += 2;
                     let t = self.symbol()?;
                     e = Expr::IsType(false, Box::new(e), t);
@@ -2093,7 +2093,7 @@ impl Parser {
                 Ok(Expr::Unary(UnOp::Neg, Box::new(self.term()?)))
             }
             Tok::Word(w) => self.word_term(&w),
-            // `set itemDelimiter to :`: HyperCard takes a bare colon as
+            // `set itemDelimiter to :`: the classic app takes a bare colon as
             // the character (Lost and Found splits Mac paths so).
             Tok::Sym(":") => {
                 self.advance();
@@ -2277,7 +2277,7 @@ impl Parser {
         self.the_rest()
     }
 
-    /// A property or function after `the`; HyperTalk also allows `the` to be
+    /// A property or function after `the`; xTalk also allows `the` to be
     /// left out, as in `visible of field 1` or `number of lines in x`.
     fn the_rest(&mut self) -> PResult<Expr> {
         if self.accept("target") {
@@ -2601,9 +2601,9 @@ impl Parser {
                 self.accept_any(&["box", "window"]);
                 return Ok(Some(ObjSpec::MsgBox));
             }
-            "hypercard" | "randomcard" if n == 0 => {
+            "hypercard" | "randomcard" if n == 0 => { // legacy-compat: old scripts name the app object
                 self.advance();
-                return Ok(Some(ObjSpec::HyperCard));
+                return Ok(Some(ObjSpec::Host));
             }
             "stack" if n == 0 => {
                 self.advance();
@@ -2893,12 +2893,12 @@ mod tests {
         assert!(matches!(*lhs, Expr::Binary(BinOp::Add, _, _)));
     }
 
-    /// What HyperCard's own stacks wrote, and HyperCard took: each was
-    /// checked in HyperCard 2.4.1 (2026-11-04). Three that it rejects
-    /// (SuperCard's bare `window`, `line LN of` with LN a variable, and
+    /// What the classic app's own stacks wrote, and the classic app took: each was
+    /// checked in classic 2.4.1 (2026-11-04). Three that it rejects
+    /// (a later card-stack tool's bare `window`, `line LN of` with LN a variable, and
     /// `repeat with x is 1`) are fix steps instead.
     #[test]
-    fn hypercard_leniencies() {
+    fn classic_leniencies() {
         // Notes without quotes, as written.
         let StmtKind::Cmd { cmd: Cmd::Play { notes, tempo, .. }, .. } = stmt("play \"Harpsichord\" tempo 380 b3 c#4 d e f# g3h. gq")
         else {

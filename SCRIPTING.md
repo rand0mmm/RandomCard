@@ -1,21 +1,21 @@
-# HyperTalk in RandomCard
+# xTalk in RandomCard
 
-This is the reference for HyperTalk as RandomCard runs it: the language of
-HyperCard 2.4.1, the old externals (XCMDs and XFCNs) now built in, and what
-RandomCard adds. Every example in a `hypertalk` block is parsed by
+This is the reference for xTalk as RandomCard runs it: the language of
+classic 2.4.1, the old externals (externals) now built in, and what
+RandomCard adds. Every example in an `xtalk` block is parsed by
 RandomCard's own parser in the tests, so they're all real.
 
-- What HyperCard 2.4.1 had that RandomCard still lacks is in
+- What classic 2.4.1 had that RandomCard still lacks is in
   [COMPLIANCE.md](COMPLIANCE.md), item by item.
 - Every external found in old stacks, and what became of it, is in
-  [XCMDS.md](XCMDS.md).
+  [EXTERNALS.md](EXTERNALS.md).
 - The Tour (the stack RandomCard opens with) has a working example of nearly
   everything here: choose the Button tool and double-click a button to read
   its script.
 
-Apple's own manual, the *HyperCard Script Language Guide* (1996), is still
+The vendor's own manual, the *classic Script Language Guide* (1996), is still
 the fullest description of the language. Where this page and the Guide
-differ, the "Differences from HyperCard" section says why.
+differ, the "Differences from the classic app" section says why.
 
 ## Contents
 
@@ -31,7 +31,7 @@ differ, the "Differences from HyperCard" section says why.
 10. [Movies](#movies)
 11. [Old externals, built in](#old-externals-built-in)
 12. [RandomCard's additions](#randomcards-additions)
-13. [Differences from HyperCard](#differences-from-hypercard)
+13. [Differences from the classic app](#differences-from-hypercard)
 
 ## Scripts and handlers
 
@@ -39,7 +39,7 @@ Every object (stack, background, card, button, field) has a script. A
 script holds **handlers**: a message handler runs when its object gets that
 message, and a function handler answers a call.
 
-```hypertalk
+```xtalk
 on mouseUp
   -- A comment runs to the end of the line.
   put "Hello" into field "Greeting"
@@ -58,7 +58,7 @@ end greet
 A long line continues onto the next after `¬` (Option-Return on a Mac
 keyboard; type `¬` or paste it elsewhere):
 
-```hypertalk
+```xtalk
 on mouseUp
   answer "This line is long, so it" && ¬
     "goes on to the next."
@@ -72,7 +72,7 @@ card, the background, the stack, any stacks in use (`start using`), the
 Home stack, and finally RandomCard itself, which carries out built-in
 commands. A handler stops the message unless it says `pass`:
 
-```hypertalk
+```xtalk
 on openCard
   put the short name of this card into field "Title"
   pass openCard
@@ -81,7 +81,7 @@ end openCard
 
 Built-in commands go through the path too, so a script can intercept them:
 
-```hypertalk
+```xtalk
 on doMenu what
   if what is "Delete Card" then
     answer "Cards in this stack can't be deleted."
@@ -93,7 +93,7 @@ end doMenu
 
 ### Control structures
 
-```hypertalk
+```xtalk
 on mouseUp
   if the hilite of button "Sound" then beep
 
@@ -129,7 +129,7 @@ end mouseUp
 
 - `exit repeat` leaves a loop, `next repeat` goes on to its next turn.
 - `exit mouseUp` (the handler's name) leaves the handler; `exit to
-  HyperCard` stops every handler running.
+  the classic app` stops every handler running.
 - `return value` answers a function call; in a message handler, it sets
   `the result`.
 - `pass mouseUp` sends the message on along the path.
@@ -141,7 +141,7 @@ its handler ends. `global` shares one between handlers and scripts, and
 keeps it until RandomCard quits. Variables typed in the message box are
 globals.
 
-```hypertalk
+```xtalk
 on mouseUp
   global gScore
   put 0 into gScore
@@ -156,7 +156,7 @@ their result in.
 
 ### send and do
 
-```hypertalk
+```xtalk
 on mouseUp
   send "mouseUp" to button "OK"
   send "refresh" to card "Index"
@@ -167,7 +167,7 @@ end mouseUp
 
 ## Values
 
-Everything in HyperTalk is text. A value is a number, a true-or-false
+Everything in xTalk is text. A value is a number, a true-or-false
 value, a point or a rectangle when it looks like one:
 
 | Kind | Looks like | Test |
@@ -213,12 +213,12 @@ From first to last in precedence:
 
 Comparisons ignore case. Text that looks like numbers compares as numbers.
 
-```hypertalk
+```xtalk
 on mouseUp
   put (3 + 4) * 2 into a
   put 17 div 5 && 17 mod 5 into b
   put "Hyper" & "Card" into c
-  if field "Name" contains "Atkinson" then beep
+  if field "Name" contains "Shannon" then beep
   if the mouseLoc is within the rect of button 1 then beep
   if there is a card "Index" then go to card "Index"
   if x is not a number then answer "Please type a number."
@@ -231,7 +231,7 @@ Any text, whether in a field, a variable or the message box, can be taken
 apart by **chunks**: characters, words (separated by spaces), items
 (separated by `the itemDelimiter`, a comma unless set) and lines.
 
-```hypertalk
+```xtalk
 on mouseUp
   put char 1 of "HyperCard" into initial
   put word 2 to 3 of field "Title" into middle
@@ -251,7 +251,7 @@ Ordinals work with any chunk or object: `first` … `tenth`, `last`,
 `put` places text **into**, **before** or **after** a chunk, and `delete`
 removes one:
 
-```hypertalk
+```xtalk
 on mouseUp
   put "Dr. " before word 1 of field "Name"
   put return & "Another line" after field "Notes"
@@ -282,7 +282,7 @@ may use it anywhere a chunk goes (`select the foundChunk`).
 `me` is the object whose script is running; `the target` is the object the
 message was first sent to. Buttons and fields are card parts unless named
 `bkgnd`/`bg`/`background`, except that `field` alone means a background
-field when the card has none by that name, as in HyperCard.
+field when the card has none by that name, as in the classic app.
 
 A field's text is its value: `put field "Name" into n`, `put n into field
 "Name"`.
@@ -317,7 +317,7 @@ stack stays current.
 | drag | `drag from 10,10 to 100,100 with shiftKey` (paints with the current tool) |
 | edit script | `edit script of button "OK"` |
 | export paint | `export paint to file "Card.png"` |
-| find | `find "Atkinson"`, `find whole "Bill Atkinson" in field "Name"`, `find chars "ink"`, `find word "card"`, `find string "per C"` |
+| find | `find "Shannon"`, `find whole "Claude Shannon" in field "Name"`, `find chars "ink"`, `find word "card"`, `find string "per C"` |
 | get | `get the name of this card` (into `it`) |
 | go | `go to card "Index"`, `go next`, `go back`, `go home`, `go to stack "Addresses"`, `go to stack "Addresses" in a new window` |
 | hide, show | `hide button "Secret"`, `show field 2 at 10,10`, `hide menuBar`, `show 5 cards` |
@@ -345,7 +345,7 @@ stack stays current.
 | wait | `wait 2 seconds`, `wait 10 ticks`, `wait until the mouseClick`, `wait while the sound is not "done"` |
 | write | `write field "Notes" to file "Notes.txt"` |
 
-```hypertalk
+```xtalk
 on mouseUp
   answer "Save first?" with "Cancel" or "Save"
   if it is "Cancel" then exit mouseUp
@@ -353,7 +353,7 @@ on mouseUp
   if it is not empty then put it into field "Name"
   visual effect dissolve slowly
   go to next card
-  find whole "Bill Atkinson" in field "Name"
+  find whole "Claude Shannon" in field "Name"
   sort cards of this background by field "Name"
   open file "Notes.txt"
   write field "Notes" to file "Notes.txt"
@@ -388,7 +388,7 @@ A function is called with parentheses, `max(3, 7)`, or with `the`,
 | Sound and speech | `the sound`, `the speech`, `the voices` |
 | The system | `the version`, `the systemVersion`, `the screenRect`, `the diskSpace`, `the heapSpace`, `the tool`, `the menus`, `the stacks`, `the stacksInUse`, `the windows` |
 
-```hypertalk
+```xtalk
 on mouseUp
   put random(6) into die
   put round(2.5) && trunc(-2.5) into rounded
@@ -401,7 +401,7 @@ on mouseUp
 end mouseUp
 ```
 
-`round` rounds a half to the even number, as HyperCard did: `round(2.5)`
+`round` rounds a half to the even number, as the classic app did: `round(2.5)`
 is 2 and `round(3.5)` is 4. `random(n)` is a whole number from 1 to n.
 
 ## Properties
@@ -418,7 +418,7 @@ on several kinds of object; `get`, `put` and `set` read and change them.
 
 **Painting:** `brush`, `centered`, `filled`, `grid`, `lineSize`,
 `multiple`, `multiSpace`, `pattern`, `polySides`, `textFont`, `textSize`,
-`textStyle`, `textAlign`, `textHeight`, and beyond HyperCard: color
+`textStyle`, `textAlign`, `textHeight`, and beyond the classic app: color
 (`penColor`, `brushColor`) and the spray can (`spraySize`,
 `sprayDensity`).
 
@@ -448,7 +448,7 @@ slider's value), a slider's `min`, `max` and `step`, and color:
 **Chunks of a field:** `textFont`, `textSize`, `textStyle`, `foreColor`,
 `textWidth`.
 
-```hypertalk
+```xtalk
 on mouseUp
   set the loc of button "Ball" to 100,100
   set the textStyle of line 1 of field "Notes" to bold
@@ -466,7 +466,7 @@ Menus have `name`, `enabled`, `checkMark`, `markChar`, `commandChar`
 
 ## System messages
 
-RandomCard sends these as HyperCard did:
+RandomCard sends these as the classic app did:
 
 | When | Messages |
 | --- | --- |
@@ -483,7 +483,7 @@ RandomCard sends these as HyperCard did:
 Built-in commands go through the message path too (`on go`, `on doMenu`,
 `on find`), so a script can change or stop any of them.
 
-```hypertalk
+```xtalk
 on keyDown theKey
   if theKey is a number then pass keyDown
   beep
@@ -502,15 +502,15 @@ end idle
 
 ## Movies
 
-HyperCard 2.4 played QuickTime movies with Apple's Movie command, and
+Classic 2.4 played QuickTime movies with the vendor's Movie command, and
 RandomCard plays today's movie files (MOV, MP4, M4V, MPEG) the same way,
 with the system's own player: AVFoundation on macOS and GStreamer on
 Linux (Windows is still to come). macOS doesn't play MPEG-1 or MPEG-2.
-Classic QuickTime movies, such as HyperCard 2.4's Simple Movie, play
+Classic QuickTime movies, such as classic 2.4's Simple Movie, play
 where the system can decode their codecs (GStreamer can decode some, on
 Linux); their own color tables are honored. Music tracks and QuickTime VR aren't played.
 
-```hypertalk
+```xtalk
 Movie "Intro", "windoid", "card"
 play movie "Intro"
 set the rate of movie 1 to 2
@@ -536,7 +536,7 @@ without its extension; with no name, a dialog asks for one. Errors go in
   the card; the others float above it.
 
 Movie windows are drawn in the card window, where scripts put them in card
-coordinates, and stay open from card to card, as in HyperCard. Dropping a
+coordinates, and stay open from card to card, as in the classic app. Dropping a
 movie file on the card window opens it in a plain window.
 
 **Referring to movies.** `movie 1`, `movie "Intro"`, `movie id 1001`,
@@ -577,17 +577,17 @@ is let go; and `mouseDownInMovie name, id, where, time, "movie", id`.
 
 ## Old externals, built in
 
-HyperCard stacks extended the language with compiled externals, which no
+Classic stacks extended the language with compiled externals, which no
 longer run anywhere. RandomCard builds in the ones stacks depend on, by
 their old names, so those stacks run unchanged; a few with prefixed names
 (`KrsNewMenu`) are updated in our copies instead, by fix steps. Most are
-also reachable through ordinary HyperTalk, given in the second column.
-[XCMDS.md](XCMDS.md) lists every one found, with what it did and what
+also reachable through ordinary xTalk, given in the second column.
+[EXTERNALS.md](EXTERNALS.md) lists every one found, with what it did and what
 became of it.
 
 | External | Built in as |
 | --- | --- |
-| AddColor (HyperCard 2.2–2.4's Color Tools) | `addColor` with all its functions: `colorCard`, `colorButton`, `addButton`, `addRect`, `addPict`, `getObjectClicked`, `moveToFront` and the rest |
+| AddColor (classic 2.2–2.4's Color Tools) | `addColor` with all its functions: `colorCard`, `colorButton`, `addButton`, `addRect`, `addPict`, `getObjectClicked`, `moveToFront` and the rest |
 | FileExists | `there is a file "Notes.txt"` |
 | FileName, FilePath, FileN | `answer file` |
 | FolderName, SelectDir, FolderPath | a dialog for choosing a folder |
@@ -610,13 +610,13 @@ became of it.
 | LineCount, FullSort, DateSort, GetPassword, GetMode, Switch, CapsLock, ClipInfo, ATalkZones, GlobalList, WindName, MacType | text, sorting and system details (Rinaldi) |
 | Mousoid, Infoid, Promptoid, Notification | small floating windows (Rinaldi) |
 | SendPS | PostScript, opened in the system's viewer to print |
-| GetDocs, GetCreator | HyperCard 1.2's Documents stack |
+| GetDocs, GetCreator | Classic 1.2's Documents stack |
 | PlayMOD | songs: `play "Title Music"`, `play stop "Title Music"` |
-| Movie, movieInfo (HyperCard 2.4's QuickTime Tools) | [movies](#movies) |
+| Movie, movieInfo (classic 2.4's QuickTime Tools) | [movies](#movies) |
 | Main | ROT13, the Technical Notes stacks' easter egg |
 | BoardInfo, INITFinder, SpinAbout, SwitchXRoo | stubs: Mac details that mean nothing today, answered harmlessly |
 
-```hypertalk
+```xtalk
 on mouseUp
   if there is a file "Notes.txt" then answer "Found it."
   Prompt 1, "Counting the lines…"
@@ -629,12 +629,12 @@ end mouseUp
 
 ## RandomCard's additions
 
-These go beyond HyperCard 2.4.1. Where HyperCard had a name for something,
+These go beyond classic 2.4.1. Where the classic app had a name for something,
 RandomCard uses it.
 
 ### The web: REST and JSON
 
-```hypertalk
+```xtalk
 on mouseUp
   put url "https://api.chucknorris.io/jokes/random" into reply
   if the result is not empty then
@@ -684,7 +684,7 @@ with `the mouse` and `the mouseLoc`.
 
 ### Modern controls
 
-HyperCard had only buttons and fields; RandomCard adds the controls a
+The classic app had only buttons and fields; RandomCard adds the controls a
 modern system has, as parts.
 
 - **Sliders:** a button whose style is `slider`. Its contents is its
@@ -695,7 +695,7 @@ modern system has, as parts.
   up and down. Its name shows at the left in its `titleWidth`, as a
   popup's does; its `backColor` colors the filled part of the track.
 
-```hypertalk
+```xtalk
 on mouseUp
   set the style of button "Red" to slider
   set the max of button "Red" to 255
@@ -713,7 +713,7 @@ end sliderChanged
 
 - **Combo boxes:** a field's `choices` (one a line) put a ▼ in it; picking
   one fills the field, which can still be typed into.
-- **Icons of any size, in color:** HyperCard's icons are 32×32 and black
+- **Icons of any size, in color:** the classic app's icons are 32×32 and black
   and white; RandomCard's can be any size and in color, and are drawn at
   their own size. Add one from a PNG, JPEG, GIF or BMP file with Add From
   File in Button Info; it's named for the file. `set the icon of me to
@@ -739,8 +739,8 @@ end sliderChanged
 - `the penColor` and `the brushColor` paint in color: a name, `r,g,b`, or
   hex as on the web (`#FF8000` or `#F80`).
 - `the spraySize` (the circle it sprays in, 2 to 64 pixels across; 16 in
-  HyperCard) and `the sprayDensity` (dots at a time, 1 to 200; 12 in
-  HyperCard).
+  the classic app) and `the sprayDensity` (dots at a time, 1 to 200; 12 in
+  the classic app).
 - `import paint from file` reads PNG, JPEG, GIF, BMP, MacPaint and PICT;
   `export paint to file` writes PNG.
 
@@ -756,7 +756,7 @@ end sliderChanged
 - **Unicode:** text is Unicode throughout. `charToNum("花")` is 33457 and
   `numToChar(26413)` is 札.
 - `textWidth(text [, font, size, style])` and `the textWidth of` a chunk:
-  its width in pixels by HyperCard's own font measurements.
+  Its width in pixels by the classic app's own font measurements.
 - `the keysDown`: the keys held now, by name (`a`, `shift`, `left`,
   `space`…), separated by commas.
 - `flush keys`: drops keys typed but not yet handled.
@@ -765,23 +765,23 @@ end sliderChanged
 
 `the osName` (`macos`, `linux` or `windows`), `the osVersion`, `the
 pathSeparator`: for scripts that work with files on any system. `the
-version` is 2.41, the version of HyperCard RandomCard follows.
+version` is 2.41, the version of the classic app RandomCard follows.
 
-## Differences from HyperCard
+## Differences from the classic app
 
-RandomCard keeps HyperCard's features and language, not the old Mac they
+RandomCard keeps the classic app's features and language, not the old computers they
 ran on:
 
 - **Text is Unicode.** `charToNum` and `numToChar` use Unicode code points,
   not Mac Roman codes. Old stacks are converted when imported: Mac Roman
-  text, and Japanese (MacJapanese) for stacks made with HyperCard J.
-- **Paths are the system's:** `/Users/bill/Notes.txt`, not `Macintosh
+  text, and Japanese (MacJapanese) for stacks made with the Japanese classic edition.
+- **Paths are the system's:** `/Users/bill/Notes.txt`, not `the classic computer <!-- legacy-compat: old path syntax -->
   HD:Notes.txt`. Stacks that build Mac paths are updated by fix steps in
   our copies ([FIX_STEPS.tsv](FIX_STEPS.tsv)).
 - **Compiled externals don't run.** The common ones are built in (see
   above); stacks that need others say "Can't understand".
 - **AppleEvents, AppleScript and other programs** aren't there yet: see
   COMPLIANCE.md.
-- **What's still missing** from HyperCard 2.4.1 (the `picture` command's
+- **What's still missing** from classic 2.4.1 (the `picture` command's
   windows, report printing, some window properties and a few messages) is
   listed in COMPLIANCE.md and on the roadmap.

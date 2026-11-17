@@ -1007,7 +1007,7 @@ def build():
                     'on mouseUp\n  put url apiURL("/id?hex=0047AB") into reply\n  if the result is not empty then\n    answer "No answer from The Color API:" && the result\n  else\n    answer "The Color API answered: #0047AB is" && key "value" of key "name" of json reply & "."\n  end if\nend mouseUp'))
     p.append(label('Shows Label', (20, 164, 620, 184), 'What Swatches shows about RandomCard', 13, bold=True))
     p.append(field('Shows', (20, 186, 620, 436),
-                   'Convert: a web service called from HyperTalk (load url … with message, so the card never '
+                   'Convert: a web service called from xTalk (load url … with message, so the card never '
                    'waits), JSON read with key … of json, a combo box (the ▼ of examples), Don\'t Save fields for '
                    'results, and Copy Text to the system clipboard.\n'
                    'Mixing Light: sliders, each with its own track color, sending sliderMoved and sliderChanged.\n'
@@ -1016,7 +1016,7 @@ def build():
                    'Harmony: several requests at once, each answer matched to its swatch, and JSON arrays '
                    '(element i of json) from the API\'s schemes.\n'
                    'Contrast: colored text and fills set from a script (foreColor and backColor), and WCAG 2\'s '
-                   'formulas in plain HyperTalk.\n'
+                   'formulas in plain xTalk.\n'
                    'Everywhere: buttons and fields in color, and functions in the stack script that every card '
                    'shares.', 12, style='Scrolling'))
 

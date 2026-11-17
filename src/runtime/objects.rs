@@ -1,8 +1,8 @@
 //! Resolving object references (`card field "Name"`, `next card`, `me`) and
 //! reading or writing their properties.
 
-use crate::hypertalk::ast::*;
-use crate::hypertalk::value::*;
+use crate::lang::ast::*;
+use crate::lang::value::*;
 use crate::model::{Id, Layer, Part, PartKind, PartStyle, Rect, TextAlign};
 
 use super::interp::{Ctl, Interp, R, err, to_bool, to_int};
@@ -17,7 +17,7 @@ impl Interp {
             ObjSpec::Me => self.frame().me,
             ObjSpec::Target => self.frame().target,
             ObjSpec::MsgBox => ObjRef::MsgBox,
-            ObjSpec::HyperCard => ObjRef::HyperCard,
+            ObjSpec::Host => ObjRef::Host,
             ObjSpec::Stack(None) => ObjRef::Stack,
             ObjSpec::Stack(Some(e)) => {
                 let name = self.eval(e)?;
@@ -308,8 +308,8 @@ impl Interp {
     pub fn name_of(&self, o: ObjRef, len: NameLength) -> String {
         let w = self.w();
         let s = &w.stack;
-        // A stack converted from HyperCard is still its file on the disc until
-        // it's saved, as HyperCard's long name gave it.
+        // A stack converted from the classic app is still its file on the disc until
+        // it's saved, as the classic app's long name gave it.
         let stack_long = || match s.path.as_ref().or(s.imported_from.as_ref()) {
             Some(p) => format!("stack \"{}\"", super::paths::shown(p)),
             None => format!("stack \"{}\"", s.name),
@@ -363,7 +363,7 @@ impl Interp {
                 }
             }
             ObjRef::MsgBox => "message box".into(),
-            ObjRef::HyperCard => "RandomCard".into(),
+            ObjRef::Host => "RandomCard".into(),
         }
     }
 
@@ -472,7 +472,7 @@ impl Interp {
             "numberformat" => self.number_format = v.to_string(),
             "httpheaders" => self.http_headers = v.to_string(),
             "soundvolume" => self.audio.set_volume(to_int(v)?.clamp(0, 7) as u8),
-            // HyperCard 2.4: which of the eight channels `play` uses.
+            // classic 2.4: which of the eight channels `play` uses.
             "soundchannel" => self.audio.set_channel(to_int(v)?.clamp(1, 8) as usize),
             "httptimeout" => self.http_timeout = super::interp::to_number(v)?.clamp(0.1, 3600.0),
             "lockscreen" => self.w().lock_screen = to_bool(v)?,
@@ -510,7 +510,7 @@ impl Interp {
                 w.user_level = (to_int(v)?.clamp(1, 5) as u8).min(limit);
                 w.show_level_at_home();
                 // Set from Home, as by its User Preferences card, the level
-                // is kept, as HyperCard kept it in Home.
+                // is kept, as the classic app kept it in Home.
                 if w.is_home(&w.stack) {
                     let level = w.user_level;
                     w.requests.push(UiRequest::SaveUserLevel(level));
@@ -606,7 +606,7 @@ impl Interp {
                     "min" => crate::model::number_text(p.min),
                     "max" => crate::model::number_text(p.max),
                     "step" => crate::model::number_text(p.step),
-                    // A popup's chosen item, as HyperCard 2.2 reports it.
+                    // A popup's chosen item, as classic 2.2 reports it.
                     "selectedtext" | "selectedline" | "selectedchunk" if p.kind == PartKind::Button => {
                         let n = p.selected_line as usize;
                         let line = p.contents.split('\n').nth(n.wrapping_sub(1));
@@ -622,7 +622,7 @@ impl Interp {
                             }
                         }
                     }
-                    // HyperCard 2.2: the selection, when it's in this field
+                    // Classic 2.2: the selection, when it's in this field
                     // (a list field's chosen lines), else empty.
                     "selectedtext" | "selectedline" | "selectedchunk" => w
                         .current_selection()
@@ -721,7 +721,7 @@ impl Interp {
                     // Space Compact Stack would free: text and styles left by
                     // deleted background fields, and unused backgrounds.
                     "freesize" => s.free_size().to_string(),
-                    // How far the card is scrolled in its window (HyperCard
+                    // How far the card is scrolled in its window (the classic app
                     // 2): RandomCard always shows the whole card.
                     "scroll" => w.card_scroll.clone(),
                     _ => {
@@ -761,7 +761,7 @@ impl Interp {
                     return err(format!("The message box has no property \"{name}\""));
                 }
             },
-            ObjRef::HyperCard => {
+            ObjRef::Host => {
                 drop(w);
                 return self.get_global_property(name);
             }
@@ -803,7 +803,7 @@ impl Interp {
                     return Ok(());
                 }
                 if matches!(name, "textfont" | "textsize" | "textstyle" | "forecolor") {
-                    // The whole field takes the new setting, as in HyperCard.
+                    // The whole field takes the new setting, as in the classic app.
                     self.w().stack.restyle_field(card, layer, id, |s| match name {
                         "textfont" => s.font = None,
                         "textsize" => s.size = None,
@@ -818,7 +818,7 @@ impl Interp {
                         Ok(id) => w.stack.icons.contains_key(&id).then_some(id),
                         Err(_) => w.stack.find_icon(v),
                     };
-                    // Not in the stack: one of HyperCard's own icons, which
+                    // Not in the stack: one of the classic app's own icons, which
                     // then joins the stack's. Any number is accepted, as it
                     // always was, even with no icon to show.
                     let icon = if v.trim().is_empty() {
@@ -826,7 +826,7 @@ impl Interp {
                     } else {
                         in_stack(&w)
                             .or_else(|| {
-                                let (id, icon) = crate::import::hypercard_icon(v)?;
+                                let (id, icon) = crate::import::builtin_icon(v)?;
                                 w.stack.icons.insert(id, icon);
                                 Some(id)
                             })
@@ -881,7 +881,7 @@ impl Interp {
                     }
                     "textsize" => {
                         p.text_size = to_int(v)?.clamp(6, 128) as u32;
-                        // As in HyperCard, the line height follows the size.
+                        // As in the classic app, the line height follows the size.
                         p.text_height = 0;
                     }
                     "textheight" => p.text_height = to_int(v)?.clamp(1, 512) as u32,
@@ -971,7 +971,7 @@ impl Interp {
                     "cantpeek" => w.stack.protection.cant_peek = to_bool(v)?,
                     "privateaccess" => w.stack.protection.private_access = to_bool(v)?,
                     "userlevel" => {}
-                    "scroll" => match crate::hypertalk::value::parse_point(v) {
+                    "scroll" => match crate::lang::value::parse_point(v) {
                         Some((x, y)) => w.card_scroll = format!("{x},{y}"),
                         None => return err(format!("Expected a point, not \"{v}\"")),
                     },
@@ -1014,7 +1014,7 @@ impl Interp {
                 }
                 Ok(())
             }
-            ObjRef::HyperCard => self.set_global_property(name, v),
+            ObjRef::Host => self.set_global_property(name, v),
         }
     }
 
@@ -1022,7 +1022,7 @@ impl Interp {
     /// Set a geometric property of the card window. The card stays its own
     /// size, so this moves the window: to the new top left corner, or for
     /// right, bottom and botRight, to wherever puts that edge there. A rect
-    /// that's smaller would show part of the card in HyperCard 2; RandomCard
+    /// that's smaller would show part of the card in classic 2; RandomCard
     /// shows the whole card at the rect's top left.
     fn move_card_window(&mut self, name: &str, v: &str) -> R<()> {
         let (x, y) = {

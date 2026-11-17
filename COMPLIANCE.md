@@ -1,21 +1,21 @@
-# HyperCard 2.4.1 compliance
+# Classic 2.4.1 compliance
 
-RandomCard aims to do everything the last HyperCard, 2.4.1 (1998), could do.
-This file audits RandomCard against Apple's own documentation for it, item by
-item. Every gap here is also on the roadmap (ROADMAP.md, "HyperCard 2.4.1
+RandomCard aims to do everything the last classic app, 2.4.1 (1998), could do.
+This file audits RandomCard against the vendor's own documentation for it, item by
+item. Every gap here is also on the roadmap (ROADMAP.md, "classic 2.4.1
 compliance").
 
 ## Sources
 
-From the HyperCard 2.4.1 install disk (in `examples/apple/hypercard-2.4.1`, not
+From the classic 2.4.1 install disk (in `examples/apple/hypercard-2.4.1`, not
 in git; text versions in its `text` folder):
 
-- **HyperCard Script Language Guide** (1996, 680 pages): the HyperTalk manual.
-  Appendix I, "HyperTalk Vocabulary", lists all 443 terms with their kind;
+- **Classic Script Language Guide** (1996, 680 pages): the xTalk manual.
+  Appendix I, "xTalk Vocabulary", lists all 443 terms with their kind;
   Appendix H, "Syntax Summary", gives every command form.
-- **HyperCard Reference** (2.3.5, 1996, 455 pages): the application: menus,
+- **Classic Reference** (2.3.5, 1996, 455 pages): the application: menus,
   tools, windows, color.
-- **HyperCard Installation and New Features** (1998, 149 pages): what 2.4 and
+- **Classic Installation and New Features** (1998, 149 pages): what 2.4 and
   2.4.1 added.
 
 ## How it's checked
@@ -31,7 +31,7 @@ Three probes in `src/runtime/tests.rs`, re-runnable as RandomCard improves:
 - System messages are checked against the messages RandomCard sends.
 
 Passing a probe means the term is there, not that every detail matches
-HyperCard; the stacks in BUGHUNT.md test that.
+the classic app; the stacks in BUGHUNT.md test that.
 
 ## Results: the language (Script Language Guide)
 
@@ -44,14 +44,14 @@ HyperCard; the stacks in BUGHUNT.md test that.
 
 ### Gaps, by feature
 
-**HyperCard 2 windows.** `the globalLoc` and `globalRect`, `the hBarLoc` and
+**Classic 2 windows.** `the globalLoc` and `globalRect`, `the hBarLoc` and
 `vBarLoc` (the card window's scroll), `the zoom`; `hide window` and `show
 window` for named windows; the moveWindow and sizeWindow messages. A start was
 made with TEXWindow's text windows (`the text of window`, `close window`).
 
 **Picture windows.** (Palettes are done: the `palette` command, openPalette
 and closePalette, and the buttonCount, commands and hilitedButton of a
-palette; HyperCard's own Navigator palette isn't there yet.) The `picture` command (Apple's Picture XCMD, built
+palette; the classic app's own Navigator palette isn't there yet.) The `picture` command (the vendor's Picture external command, built
 into 2.x), with the openPicture, closePicture, mouseDownInPicture and
 mouseUpInPicture messages and the `dithering` and `zoom` properties.
 
@@ -96,11 +96,11 @@ properties` (lists of what's available) are also missing.
 ## Still to audit
 
 - **What 2.4 and 2.4.1 added** (New Features manual): movies driven
-  from HyperTalk (HyperTalk's side only; RandomCard plays today's video
+  from xTalk (xTalk's side only; RandomCard plays today's video
   formats, .mov included, not classic QuickTime codecs or music tracks), linking to URLs, opening many files, the enhanced script
   editor, the improved Picture command, new syntax. Done so far: `the
   soundChannel` (eight channels, `play stop` for the current one, `stop
   sound` for all), checked in 2.4.1 with Shattered Stone.
-- **The application** (HyperCard Reference): menus, tools, dialogs, the color
+- **The application** (classic Reference): menus, tools, dialogs, the color
   tools, and everything else that isn't the language.
 - The 93 keywords, chunks, ordinals, tools and other terms.

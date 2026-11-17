@@ -1,4 +1,4 @@
-//! AddColor: the colors HyperCard 2.x's AddColor XCMD laid over a card or
+//! AddColor: the colors classic 2.x's AddColor external command laid over a card or
 //! background. The picture and parts stay black and white; each item colors
 //! the white of one part, a rectangle, or shows a color picture.
 
